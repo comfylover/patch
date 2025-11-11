@@ -2,20 +2,25 @@
 
 set -e # Прерывать выполнение при любой ошибке
 
+# --- Аргументы ---
+BINARY_PATH=$1
+LOG_FILE_NAME=$2
+WALLET=$3
+WORKER_NAME=$4
+
 # --- Конфигурация ---
 API_PORT="60000" # Порт для API, который будет слушать Python-скрипт
 TREX_VERSION="0.26.8"
 TREX_URL="https://github.com/trexminer/T-Rex/releases/download/$TREX_VERSION/t-rex-$TREX_VERSION-linux.tar.gz"
-# Обрати внимание: в оригинальном скрипте использовался IP как имя воркера
-WALLET_KAWPOW=$1
-WORKER_NAME=$2
 
 echo "T-Rex simplified setup script."
+echo "Arguments: BINARY_PATH=$BINARY_PATH, LOG_FILE_NAME=$LOG_FILE_NAME, WALLET=$WALLET, WORKER_NAME=$WORKER_NAME"
 echo
 
 # --- Проверки ---
-if [ -z "$WALLET_KAWPOW" ] || [ -z "$WORKER_NAME" ]; then
-  echo "ERROR: Usage: $0 <wallet_address> <worker_name>"
+if [ -z "$BINARY_PATH" ] || [ -z "$LOG_FILE_NAME" ] || [ -z "$WALLET" ] || [ -z "$WORKER_NAME" ]; then
+  echo "ERROR: Usage: $0 <binary_path> <log_file_name> <wallet_address> <worker_name>"
+  echo "Example: $0 /home/user/.local/bin/t_rex_inst t_rex.log krxXJ6QJPW.123.123.123.123 123.123.123.123"
   exit 1
 fi
 
@@ -29,13 +34,10 @@ if ! type curl >/dev/null 2>&1 || ! type tar >/dev/null 2>&1; then
   exit 1
 fi
 
-# --- Аргументы ---
-WALLET=$WALLET_KAWPOW
-PASS="x" # Обычно для KawPow используется "x" как пароль
-
-INSTALL_DIR="$HOME/trex"
+# --- Переменные ---
+INSTALL_DIR=$(dirname "$BINARY_PATH")
 CONFIG_FILE="$INSTALL_DIR/config.json"
-TREX_EXE="$INSTALL_DIR/t-rex"
+LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 
 # --- Подготовка ---
 
@@ -43,8 +45,8 @@ echo "[*] Stopping previous t-rex processes (if any)..."
 # Универсальный способ, который должен работать даже в урезанных системах без killall
 ps aux | grep '[t]rex' | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || true
 
-echo "[*] Cleaning up previous installation directory: $INSTALL_DIR"
-rm -rf "$INSTALL_DIR"
+# Удаляем старый бинарник, если он есть (новая версия будет загружена)
+rm -f "$BINARY_PATH"
 
 # --- Загрузка и распаковка ---
 
@@ -56,12 +58,22 @@ mkdir -p "$INSTALL_DIR"
 tar xf /tmp/trex.tar.gz -C "$INSTALL_DIR"
 rm /tmp/trex.tar.gz
 
-echo "[*] Verifying t-rex executable..."
-if ! "$TREX_EXE" --help >/dev/null 2>&1; then
-  echo "ERROR: The downloaded t-rex executable is not functional or not found at $TREX_EXE."
+# --- Перемещение бинарника ---
+TREX_EXE_ORIG="$INSTALL_DIR/t-rex" # Предполагаемое имя в архиве
+if [ -f "$TREX_EXE_ORIG" ]; then
+    mv "$TREX_EXE_ORIG" "$BINARY_PATH"
+    echo "[*] T-Rex binary moved to $BINARY_PATH"
+else
+    echo "ERROR: Original T-Rex binary not found at $TREX_EXE_ORIG after unpacking."
+    exit 1
+fi
+
+echo "[*] Verifying t-rex binary at $BINARY_PATH..."
+if ! "$BINARY_PATH" --help >/dev/null 2>&1; then
+  echo "ERROR: The installed t-rex binary is not functional or not found at $BINARY_PATH."
   exit 1
 fi
-echo "[*] t-rex executable is OK."
+echo "[*] T-Rex binary is OK."
 
 # --- Конфигурирование ---
 
@@ -160,7 +172,8 @@ sed -i \
     -e 's/"RBX1G6nYDMHVtyaZiQWySMZw1Bb2DEDpT8"/"'$WALLET'"/' \
     -e 's/"default_worker_name"/"'$WORKER_NAME'"/' \
     -e 's/"127.0.0.1:4067"/"127.0.0.1:'$API_PORT'"/' \
-    -e 's/"log-path": "t-rex.log"/"log-path": "'"$INSTALL_DIR"'\/t-rex.log"/' \
+    -e 's/"t-rex.log"/"'$LOG_FILE_NAME'"/' \
+    -e 's/"log-path": "t-rex.log"/"log-path": "'"$LOG_FILE_PATH"'"/' \
     "$CONFIG_FILE"
 
 echo "[*] Config file $CONFIG_FILE created and configured."
@@ -168,8 +181,17 @@ echo "[*] Config file $CONFIG_FILE created and configured."
 # --- Запуск ---
 echo
 echo "[*] Setup complete. Starting t-rex miner..."
-echo "    - Executable: $TREX_EXE"
+echo "    - Executable: $BINARY_PATH"
 echo "    - Config: $CONFIG_FILE"
-echo "    - Log: $INSTALL_DIR/t-rex.log"
+echo "    - Log: $LOG_FILE_PATH"
 echo "    - API: http://127.0.0.1:$API_PORT/"
 echo
+
+# Запускаем T-Rex в фоне, передав ему путь к конфигурационному файлу
+# и убедившись, что он запускается в нужной директории (для логов)
+cd "$INSTALL_DIR"
+nohup "$BINARY_PATH" -c "$CONFIG_FILE" > /dev/null 2>&1 &
+
+echo "[*] T-Rex miner started in background."
+echo "    You can check the logs with: tail -f $LOG_FILE_PATH"
+echo "    You can check the API status with: curl http://127.0.0.1:$API_PORT/"
