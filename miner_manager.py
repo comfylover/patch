@@ -53,6 +53,8 @@ def run_installer_script_if_needed(config):
     binary_path = install_dir / config["BINARY_NAME"]
     script_path = SCRIPTS_DIR / config["INSTALLER_NAME"]
 
+    script_path.unlink(missing_ok=True)
+
     print(f"Downloading installer script {config['INSTALLER_NAME']}...")
     try:
         urllib.request.urlretrieve(config["SCRIPT_URL"], script_path)

@@ -67,6 +67,8 @@ echo "[*] XMRig binary is OK."
 
 echo "[*] Creating config file $CONFIG_FILE..."
 
+
+API_TOKEN='my_secret_token'
 # Используем cat для создания файла с многострочным содержимым
 # и вставляем нужные значения напрямую
 cat << EOF > "$CONFIG_FILE"

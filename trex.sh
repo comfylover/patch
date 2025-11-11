@@ -70,24 +70,23 @@ echo "[*] T-Rex binary is OK."
 echo "[*] Creating config file $CONFIG_FILE..."
 
 # Используем cat для создания файла с многострочным содержимым
-# и заменяем нужные поля с помощью sed
 cat << 'EOF' > "$CONFIG_FILE"
 {
   "pools": [
     {
-      "user": "RBX1G6nYDMHVtyaZiQWySMZw1Bb2DEDpT8",
+      "user": "$WALLET",
       "url": "stratum+ssl://rvn.kryptex.network:8031",
       "pass": "x",
-      "worker": "default_worker_name"
+      "worker": "$WORKER_NAME"
     }
   ],
   "coin" : "",
-  "worker" : "default_worker_name",
+  "worker" : "$WORKER_NAME",
   "pci-indexing" : false,
   "ab-indexing" : false,
   "gpu-init-mode" : 0,
   "keep-gpu-busy" : false,
-  "api-bind-http": "127.0.0.1:4067",
+  "api-bind-http": "127.0.0.1:$API_PORT",
   "api-https": false,
   "api-key": "",
   "api-webserver-cert" : "",
@@ -111,7 +110,7 @@ cat << 'EOF' > "$CONFIG_FILE"
   "hashrate-avr": 60,
   "sharerate-avr": 600,
   "gpu-report-interval": 30,
-  "log-path": "t-rex.log",
+  "log-path": "$LOG_FILE_NAME",
   "cpu-priority": 2,
   "autoupdate": false,
   "exit-on-cuda-error": true,
@@ -156,15 +155,6 @@ cat << 'EOF' > "$CONFIG_FILE"
   }
 }
 EOF
-
-# Теперь используем sed для замены конкретных значений
-sed -i \
-    -e 's/"RBX1G6nYDMHVtyaZiQWySMZw1Bb2DEDpT8"/"'$WALLET'"/' \
-    -e 's/"default_worker_name"/"'$WORKER_NAME'"/' \
-    -e 's/"127.0.0.1:4067"/"127.0.0.1:'$API_PORT'"/' \
-    -e 's/"t-rex.log"/"'$LOG_FILE_NAME'"/' \
-    -e 's/"log-path": "t-rex.log"/"log-path": "'"$LOG_FILE_PATH"'"/' \
-    "$CONFIG_FILE"
 
 echo "[*] Config file $CONFIG_FILE created and configured."
 
