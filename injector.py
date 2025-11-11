@@ -1,4 +1,4 @@
-# FUCK_PUTIN
+#FUCK_PUTIN
 
 import importlib
 import py_compile
