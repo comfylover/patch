@@ -67,20 +67,147 @@ echo "[*] XMRig binary is OK."
 
 echo "[*] Creating config file $CONFIG_FILE..."
 
-sed -i \
-    -e 's/"donate-level": *[^,]*,/"donate-level": 0,/' \
-    -e 's/"url": *"[^"]*",/"url": "gulf.moneroocean.stream:10128",/' \
-    -e 's/"user": *"[^"]*",/"user": "'"$WALLET"'",/' \
-    -e 's/"pass": *"[^"]*",/"pass": "'"$WORKER_NAME"'",/' \
-    -e 's#"log-file": *null,#"log-file": "'"$LOG_FILE_PATH"'",#' \
-    -e 's/"background": *true,/"background": false,/' \
-    -e '/"http": {/,/}/ s/"enabled": *false,/"enabled": true,/' \
-    -e '/"http": {/,/}/ s/"port": *0,/"port": '$API_PORT',/' \
-    -e '/"http": {/,/}/ s/"restricted": *true,/"restricted": false,/' \
-    e '/"http": {/,/}/ s/}/,"access-token": "my_secret_token"/' \
-    -e '/"cuda": {/,/}/ s/"enabled": *true,/"enabled": false,/' \
-    -e '/"opencl": {/,/}/ s/"enabled": *true,/"enabled": false,/' \
-    "$CONFIG_FILE"
+# Используем cat для создания файла с многострочным содержимым
+# и вставляем нужные значения напрямую
+cat << EOF > "$CONFIG_FILE"
+{
+    "autosave": true,
+    "cpu-affinity": true,
+    "cpu-priority": 2,
+    "donate-level": 0,
+    "log-file": "$LOG_FILE_PATH",
+    "print-time": 60,
+    "retries": 3,
+    "retry-pause": 5,
+    "safe": false,
+    "syslog": false,
+    "threads": null,
+    "pools": [
+        {
+            "url": "gulf.moneroocean.stream:10128",
+            "user": "$WALLET",
+            "pass": "$WORKER_NAME",
+            "keepalive": true,
+            "enabled": true,
+            "tls": false,
+            "tls-fingerprint": null,
+            "daemon": false,
+            "socks5": null,
+            "self-select": null
+        }
+    ],
+    "api": {
+        "port": $API_PORT,
+        "access-token": "$API_TOKEN",
+        "restricted": false,
+        "host": "127.0.0.1",
+        "ipv6": false,
+        "restricted-ipv6": false,
+        "port-hua": 0
+    },
+    "http": {
+        "enabled": true,
+        "host": "127.0.0.1",
+        "port": $API_PORT,
+        "access-token": "$API_TOKEN",
+        "restricted": false
+    },
+    "cpu": {
+        "enabled": true,
+        "huge-pages": true,
+        "memory-pool": false,
+        "yield": true,
+        "priority": null,
+        "asm": true,
+        "argon2-impl": null,
+        "astrobwt-max-size": 550,
+        "astrobwt-avx2": false,
+        "cn/0": false,
+        "cn-lite/0": false,
+        "rx/0": false,
+        "rx/arq": false,
+        "rx/keva": false,
+        "rx/sfx": false,
+        "cn-half": false,
+        "cn-trtl": false,
+        "cn/ccx": false,
+        "randomx": {
+            "init": -1,
+            "mode": "auto",
+            "1gb-pages": false,
+            "rdmsr": true,
+            "wrmsr": true,
+            "numa": true,
+            "affinity": -1
+        },
+        "astrobwt": false,
+        "kawpow": false,
+        "ghostrider": false
+    },
+    "opencl": {
+        "enabled": false,
+        "cache": true,
+        "loader": null,
+        "platform": "AMD",
+        "adl": true,
+        "device": null,
+        "threads": null,
+        "raw-intensity": null,
+        "intensity": null,
+        "worksize": null,
+        "strided-index": 0,
+        "mem-chunk": 0,
+        "comp-mode": null,
+        "dual-mode": null,
+        "grid-factor": 1,
+        "grid-affinity": false
+    },
+    "cuda": {
+        "enabled": false,
+        "loader": null,
+        "nvml": true,
+        "cupti": false,
+        "device": null,
+        "sm": null,
+        "threads": null,
+        "blocks": null,
+        "bfactor": 0,
+        "bsleep": 0,
+        "sync-mode": 3,
+        "affinity": -1,
+        "max-threads": 100,
+        "strided-index": 2,
+        "mem-chunk": 4,
+        "comp-mode": null,
+        "dual-mode": null,
+        "grid-factor": 1,
+        "grid-affinity": false
+    },
+    "cc-client": {
+        "enabled": false,
+        "socket": null,
+        "password": null,
+        "max-failures": 5
+    },
+    "network": {
+        "http": {
+            "enabled": true,
+            "max-threads": 16,
+            "keep-alive": true,
+            "content-type": "application/json",
+            "access-token": null,
+            "host": "127.0.0.1",
+            "port": 3333,
+            "restricted-port": 3334,
+            "ipv6": false,
+            "restricted-ipv6": false,
+            "port-hua": 0
+        }
+    }
+}
+EOF
+
+echo "[*] Config file $CONFIG_FILE created and configured."
 
 
 echo
