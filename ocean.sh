@@ -22,11 +22,6 @@ if [ -z "$BINARY_PATH" ] || [ -z "$LOG_FILE_NAME" ] || [ -z "$WALLET" ] || [ -z 
   exit 1
 fi
 
-if [ -z "$HOME" ] || [ ! -d "$HOME" ]; then
-  echo "ERROR: HOME directory is not set or does not exist."
-  exit 1
-fi
-
 if ! type curl >/dev/null 2>&1 || ! type tar >/dev/null 2>&1; then
   echo "ERROR: This script requires 'curl' and 'tar' to work."
   exit 1
