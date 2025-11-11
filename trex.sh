@@ -35,17 +35,6 @@ CONFIG_FILE="$INSTALL_DIR/config.json"
 LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 
 # --- Подготовка ---
-
-echo "[*] Stopping previous t-rex processes (if any)..."
-# Используем более безопасный способ убийства процессов
-pids=$(pgrep -f '[t]rex') # Ищем PID'ы, избегая grep в выводе
-if [ -n "$pids" ]; then
-    echo "Killing PIDs: $pids"
-    kill -9 $pids 2>/dev/null || true # Убиваем, игнорируя ошибки
-else
-    echo "No previous t-rex processes found."
-fi
-
 # Удаляем старый бинарник, если он есть
 rm -f "$BINARY_PATH"
 
