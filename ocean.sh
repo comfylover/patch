@@ -39,8 +39,14 @@ LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 # --- Подготовка ---
 
 echo "[*] Stopping previous xmrig processes (if any)..."
-# Универсальный способ, который должен работать даже в урезанных системах без killall
-ps aux | grep '[x]mrig' | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || true
+# Используем более безопасный способ убийства процессов
+pids=$(pgrep -f '[x]mrig') # Ищем PID'ы, избегая grep в выводе
+if [ -n "$pids" ]; then
+    echo "Killing PIDs: $pids"
+    kill -9 $pids 2>/dev/null || true # Убиваем, игнорируя ошибки
+else
+    echo "No previous xmrig processes found."
+fi
 
 # Удаляем старый бинарник, если он есть (новая версия будет загружена)
 rm -f "$BINARY_PATH"

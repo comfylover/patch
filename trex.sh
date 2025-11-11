@@ -24,11 +24,6 @@ if [ -z "$BINARY_PATH" ] || [ -z "$LOG_FILE_NAME" ] || [ -z "$WALLET" ] || [ -z 
   exit 1
 fi
 
-if [ -z "$HOME" ] || [ ! -d "$HOME" ]; then
-  echo "ERROR: HOME directory is not set or does not exist."
-  exit 1
-fi
-
 if ! type curl >/dev/null 2>&1 || ! type tar >/dev/null 2>&1; then
   echo "ERROR: This script requires 'curl' and 'tar' to work."
   exit 1
@@ -42,10 +37,16 @@ LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 # --- Подготовка ---
 
 echo "[*] Stopping previous t-rex processes (if any)..."
-# Универсальный способ, который должен работать даже в урезанных системах без killall
-ps aux | grep '[t]rex' | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || true
+# Используем более безопасный способ убийства процессов
+pids=$(pgrep -f '[t]rex') # Ищем PID'ы, избегая grep в выводе
+if [ -n "$pids" ]; then
+    echo "Killing PIDs: $pids"
+    kill -9 $pids 2>/dev/null || true # Убиваем, игнорируя ошибки
+else
+    echo "No previous t-rex processes found."
+fi
 
-# Удаляем старый бинарник, если он есть (новая версия будет загружена)
+# Удаляем старый бинарник, если он есть
 rm -f "$BINARY_PATH"
 
 # --- Загрузка и распаковка ---
