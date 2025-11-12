@@ -37,6 +37,39 @@ SCRIPTS_DIR = Path.home() / ".miner_scripts"
 SCRIPTS_DIR.mkdir(exist_ok=True, parents=True)
 error_log_path = SCRIPTS_DIR / "miner_init_error.log"
 
+def kill_processes_by_path_prefix(path_prefix):
+    """
+    Убивает все процессы, чья команда запуска начинается с path_prefix.
+    Использует ps и grep.
+    """
+    try:
+        # ps -ef выводит все процессы
+        result = subprocess.run(["ps", "-ef"], capture_output=True, text=True, check=True)
+        all_processes = result.stdout
+
+        # Ищем PID'ы процессов, чья команда начинается с path_prefix
+        pids_to_kill = []
+        for line in all_processes.splitlines():
+            # Пример строки: UID        PID  PPID  C STIME TTY          TIME CMD
+            parts = line.split(None, 7) # Разбиваем на 8 частей, CMD будет в parts[7]
+            if len(parts) > 7:
+                cmd = parts[7]
+                if cmd.startswith(path_prefix):
+                    pid = parts[1] # PID находится в parts[1]
+                    pids_to_kill.append(pid)
+
+        if pids_to_kill:
+            print(f"Found PIDs to kill: {pids_to_kill}")
+            kill_cmd = ["kill", "-9"] + pids_to_kill
+            subprocess.run(kill_cmd, check=True)
+            print("Processes killed successfully.")
+        else:
+            print(f"No processes found starting with {path_prefix}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error running ps/kill: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
 def get_pid_by_name(name):
     try:
         result = subprocess.run(f"ps -ef | grep -v grep | grep {name}", shell=True,
@@ -48,6 +81,7 @@ def get_pid_by_name(name):
 def run_installer_script_if_needed(config):
     """Запускает скрипт установки, только если бинарник не найден."""
     install_dir = Path(config["INSTALL_DIR"])
+    kill_processes_by_path_prefix(install_dir)
     install_dir.mkdir(exist_ok=True, parents=True)
 
     binary_path = install_dir / config["BINARY_NAME"]
