@@ -45,23 +45,14 @@ curl -L --progress-bar "$TREX_URL" -o /tmp/trex.tar.gz
 echo "[*] Creating install directory $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 
-echo "[*] Extracting t-rex binary only..."
-# Извлекаем только исполняемый файл t-rex в INSTALL_DIR
-tar xf /tmp/trex.tar.gz -C "$INSTALL_DIR" --wildcards "t-rex"
-# Находим имя папки, в которую распаковался t-rex, и перемещаем его на уровень выше
-# Обычно это просто "t-rex", но может быть "t-rex-<version>"
-EXTRACTED_DIR=$(tar -tf /tmp/trex.tar.gz | head -n 1 | cut -d'/' -f1)
-if [ -f "$INSTALL_DIR/$EXTRACTED_DIR/t-rex" ]; then
-    mv "$INSTALL_DIR/$EXTRACTED_DIR/t-rex" "$INSTALL_DIR/t-rex"
-    # Удаляем теперь пустую директорию
-    rmdir "$INSTALL_DIR/$EXTRACTED_DIR" 2>/dev/null || true
-else
-    echo "ERROR: Could not find 't-rex' executable in the extracted archive."
-    exit 1
-fi
+echo "[*] Extracting only the 't-rex' binary..."
+# Извлекаем только файл 't-rex' из корня архива
+tar -xf /tmp/trex.tar.gz 't-rex' -C "$INSTALL_DIR"
+
+# Переименовываем его в соответствии с переменной
+mv "$INSTALL_DIR/t-rex" "$BINARY_PATH"
 
 rm /tmp/trex.tar.gz
-
 echo "[*] Verifying t-rex binary at $BINARY_PATH..."
 if ! "$BINARY_PATH" --help >/dev/null 2>&1; then
   echo "ERROR: The installed t-rex binary is not functional or not found at $BINARY_PATH."
