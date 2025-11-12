@@ -34,7 +34,6 @@ INSTALL_DIR=$(dirname "$BINARY_PATH")
 CONFIG_FILE="$INSTALL_DIR/config.json"
 LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 
-# --- Подготовка ---
 # Удаляем старый бинарник, если он есть
 rm -f "$BINARY_PATH"
 
