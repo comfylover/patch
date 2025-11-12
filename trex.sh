@@ -47,7 +47,7 @@ mkdir -p "$INSTALL_DIR"
 
 echo "[*] Extracting t-rex binary only..."
 # Извлекаем только исполняемый файл t-rex в INSTALL_DIR
-tar xf /tmp/trex.tar.gz -C "$INSTALL_DIR" --wildcards "*/t-rex"
+tar xf /tmp/trex.tar.gz -C "$INSTALL_DIR" --wildcards "t-rex"
 # Находим имя папки, в которую распаковался t-rex, и перемещаем его на уровень выше
 # Обычно это просто "t-rex", но может быть "t-rex-<version>"
 EXTRACTED_DIR=$(tar -tf /tmp/trex.tar.gz | head -n 1 | cut -d'/' -f1)
