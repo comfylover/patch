@@ -173,6 +173,7 @@ if not (KRX_WALLET and OCEAN_WALLET and PUBLIC_IP):
     print("Wallets or IP are not configured.")
     print("=" * 50 + "\n")
 else:
+    print("\n" + "=" * 50)
     print("Starting miner setup and management...")
     kill_processes_by_path_prefix(INSTALL_DIR)
     for config in MINER_CONFIGS:
