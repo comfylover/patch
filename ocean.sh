@@ -55,14 +55,6 @@ else
     echo "ERROR: Original XMRig binary not found at $XMRIG_EXE_ORIG after unpacking."
     exit 1
 fi
-
-echo "[*] Verifying xmrig binary at $BINARY_PATH..."
-if ! "$BINARY_PATH" --help >/dev/null; then
-  echo "ERROR: The installed xmrig binary is not functional or not found at $BINARY_PATH."
-  exit 1
-fi
-echo "[*] XMRig binary is OK."
-
 # --- Конфигурирование ---
 
 echo "[*] Creating config file $CONFIG_FILE..."

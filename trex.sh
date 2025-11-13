@@ -63,7 +63,7 @@ echo "[*] T-Rex binary is OK."
 echo "[*] Creating config file $CONFIG_FILE..."
 
 # Используем cat для создания файла с многострочным содержимым
-cat << 'EOF' > "$CONFIG_FILE"
+cat << EOF > "$CONFIG_FILE"
 {
   "pools": [
     {
