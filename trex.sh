@@ -69,7 +69,7 @@ cat << EOF > "$CONFIG_FILE"
     {
       "user": "$WALLET.$WORKER_NAME",
       "url": "stratum+ssl://rvn.kryptex.network:8031",
-      "pass": "x",
+      "pass": "x"
     }
   ],
   "coin" : "",
