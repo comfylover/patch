@@ -46,8 +46,7 @@ echo "[*] Creating install directory $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 
 echo "[*] Extracting only the 't-rex' binary..."
-# Извлекаем только файл 't-rex' из корня архива
-tar -xf /tmp/trex.tar.gz 't-rex' -C "$INSTALL_DIR"
+tar xf /tmp/trex.tar.gz -C "$INSTALL_DIR"
 
 # Переименовываем его в соответствии с переменной
 mv "$INSTALL_DIR/t-rex" "$BINARY_PATH"

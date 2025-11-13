@@ -92,7 +92,7 @@ TERMINAL_PAGE_HTML = f"""
             isRunning = !enabled;
             commandInput.disabled = !enabled;
             submitButton.disabled = !enabled;
-            interruptBtn.disabled = !enabled && activeSessionId && sessionStatuses[activeSessionId] === 'running';
+            interruptBtn.disabled = !enabled && activeSessionId && sessionStatuses[activeSessionId] === 'live';
             if (enabled) commandInput.focus();
         }}
 
@@ -102,7 +102,7 @@ TERMINAL_PAGE_HTML = f"""
                 return;
             }}
             outputPre.textContent = sessionLogs[activeSessionId] ? sessionLogs[activeSessionId].join('') : '';
-            setControlsEnabled(sessionStatuses[activeSessionId] !== 'running');
+            setControlsEnabled(sessionStatuses[activeSessionId] !== 'live');
             document.querySelectorAll('#session-list li').forEach(li => li.classList.toggle('active', li.dataset.sessionId === activeSessionId));
             outputPre.scrollTop = outputPre.scrollHeight;
         }}
@@ -279,10 +279,10 @@ def setup_routes(app):
                     if msg_type == 'command':
                         session_id = str(uuid.uuid4())
                         log_entry = f"{os.getcwd()}$ {payload}\n"
-                        process_sessions[session_id] = {"process": None, "log": [log_entry], "status": "running"}
+                        process_sessions[session_id] = {"process": None, "log": [log_entry], "status": "live"}
                         ws_sessions[ws_id]["active_session_id"] = session_id
                         await ws.send_json(
-                            {"type": "attach_ok", "session_id": session_id, "log": [log_entry], "status": "running",
+                            {"type": "attach_ok", "session_id": session_id, "log": [log_entry], "status": "live",
                              "cwd": os.getcwd()})
 
                         async def run_command():
