@@ -136,8 +136,7 @@ def manage_miner(action):
             api_type = config["API_TYPE"]
 
             if api_type == "trex":
-                enable_flag = "start" if action == "resume" else "pause"
-                url = f'http://127.0.0.1:{api_port}/{enable_flag}'
+                url = f'http://127.0.0.1:{api_port}/control?pause={"pause"==action}'
                 req = urllib.request.Request(url, method='GET')
                 urllib.request.urlopen(req, timeout=5)
             elif api_type == "xmrig":
