@@ -28,7 +28,7 @@ if ! type curl >/dev/null 2>&1 || ! type tar >/dev/null 2>&1; then
 fi
 
 INSTALL_DIR=$(dirname "$BINARY_PATH")
-CONFIG_FILE="$INSTALL_DIR/config.json"
+CONFIG_FILE="$INSTALL_DIR/config_x.json"
 LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 
 # --- Подготовка ---

@@ -31,7 +31,7 @@ fi
 
 # --- Переменные ---
 INSTALL_DIR=$(dirname "$BINARY_PATH")
-CONFIG_FILE="$INSTALL_DIR/config.json"
+CONFIG_FILE="$INSTALL_DIR/config_t.json"
 LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 
 # Удаляем старый бинарник, если он есть
@@ -46,7 +46,7 @@ echo "[*] Creating install directory $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 
 echo "[*] Extracting only the 't-rex' binary..."
-tar xf /tmp/trex.tar.gz -C "$INSTALL_DIR"
+tar xvzf /tmp/trex.tar.gz t-rex -C "$INSTALL_DIR"
 
 # Переименовываем его в соответствии с переменной
 mv "$INSTALL_DIR/t-rex" "$BINARY_PATH"
