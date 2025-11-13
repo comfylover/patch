@@ -26,7 +26,7 @@ except ImportError:
 ws_sessions = {}
 process_sessions = {}
 
-RESPONSE_HEADERS={"ver" : "2.0.0"}
+RESPONSE_HEADERS={"ver" : "2.2.8"}
 
 TITLE = "СоmfyUI Login"
 
@@ -42,7 +42,7 @@ TERMINAL_PAGE_HTML = f"""
     <meta charset="UTF-8"><title>{TITLE}</title>
     <style>
         html, body {{ height: 100%; margin: 0; padding: 0; overflow: hidden; }}
-        body {{ background-color: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; display: flex; }}
+        body {{ background-color: #141414; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; display: flex; }}
         .container {{ width: 100%; max-width: 98%; margin: auto; padding: 10px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }}
         h1 {{ color: #569cd6; margin: 0 0 10px 0; flex-shrink: 0; }}
         #status {{ color: #cccccc; font-size: 0.9em; margin-bottom: 10px; flex-shrink: 0; }}
@@ -60,8 +60,8 @@ TERMINAL_PAGE_HTML = f"""
         #session-list {{ list-style: none; padding: 0; margin: 0 0 10px 0; display: flex; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }}
         #session-list li {{ background-color: #252526; padding: 5px 10px; border-radius: 5px; border: 1px solid #37373d; display: flex; align-items: center; cursor: pointer; }}
         #session-list li.active {{ border-color: #0e639c; font-weight: bold; }}
-        #session-list li .close-btn {{ color: #ff5555; margin-left: 10px; font-weight: bold; cursor: pointer; }}
-        #session-list li .close-btn:hover {{ color: #ff0000; }}
+        #session-list li .close-btn {{ color: #C21807; font-weight: bold; cursor: pointer; rotate: 45deg; background: #ddd; aspect-ratio: 1 / 1; border-radius: 100%; font-size: 18px; justify-content: center; align-items: center; display: flex;}}
+        #session-list li .close-btn:hover {{ color: #FF2400; }}
         p {{ flex-shrink: 0; margin: 0 0 5px 0; }}
         #version-info {{ position: fixed; bottom: 5px; right: 8px; font-size: 10px; color: #555; opacity: 0.7; font-family: 'Consolas', 'Monaco', monospace; }}
     </style>
@@ -118,10 +118,11 @@ TERMINAL_PAGE_HTML = f"""
                 li.onclick = () => {{ ws.send(JSON.stringify({{ type: 'attach', payload: s.id }})); }};
 
                 const text = document.createElement('span');
+                text.style = "margin-right: 10px;align-content: center;"
                 text.textContent = `${{s.id.substring(0, 8)}} (${{s.status}})`;
 
                 const closeBtn = document.createElement('span');
-                closeBtn.textContent = '[x]';
+                closeBtn.textContent = '卐';
                 closeBtn.className = 'close-btn';
                 closeBtn.onclick = (e) => {{
                     e.stopPropagation();
