@@ -80,6 +80,7 @@ cat << EOF > "$CONFIG_FILE"
   "api-bind-http": "127.0.0.1:$API_PORT",
   "api-https": false,
   "api-key": "",
+  "api-readonly": false,
   "api-webserver-cert" : "",
   "api-webserver-pkey" : "",
   "kernel" : 0,
