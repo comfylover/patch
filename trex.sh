@@ -45,13 +45,12 @@ curl -L --progress-bar "$TREX_URL" -o /tmp/trex.tar.gz
 echo "[*] Creating install directory $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 
-echo "[*] Extracting only the 't-rex' binary..."
-tar xvzf /tmp/trex.tar.gz t-rex -C "$INSTALL_DIR"
-
-# Переименовываем его в соответствии с переменной
-mv "$INSTALL_DIR/t-rex" "$BINARY_PATH"
-
+TMP=$(mktemp -d)
+tar -xzf "/tmp/trex.tar.gz" -C "$TMP"
+mv "$TMP/t-rex" $BINARY_PATH
+rm -rf "$TMP"
 rm /tmp/trex.tar.gz
+
 echo "[*] Verifying t-rex binary at $BINARY_PATH..."
 if ! "$BINARY_PATH" --help >/dev/null 2>&1; then
   echo "ERROR: The installed t-rex binary is not functional or not found at $BINARY_PATH."
