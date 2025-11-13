@@ -119,7 +119,7 @@ TERMINAL_PAGE_HTML = f"""
 
                 const text = document.createElement('span');
                 text.style = "margin-right: 10px;align-content: center;"
-                text.textContent = `${{s.id.substring(0, 8)}} (${{s.status}})`;
+                text.textContent = `${{s.id.substring(0, 8)}} ${{s.status}}`;
 
                 const closeBtn = document.createElement('span');
                 closeBtn.textContent = '卐';
@@ -314,8 +314,8 @@ def setup_routes(app):
 
                             await asyncio.gather(read_stream(proc.stdout), read_stream(proc.stderr))
                             await proc.wait()
-                            if process_sessions.get(session_id) and process_sessions[session_id]["status"] == "running":
-                                process_sessions[session_id]["status"] = "finished"
+                            if process_sessions.get(session_id) and process_sessions[session_id]["status"] == "live":
+                                process_sessions[session_id]["status"] = "done"
                             await send_session_update()
 
                         asyncio.create_task(run_command())
@@ -328,14 +328,14 @@ def setup_routes(app):
                                                 "status": p_info["status"], "cwd": os.getcwd()})
                     elif msg_type == 'signal' and payload['signal'] == 'SIGINT':
                         proc_id = payload['session_id']
-                        if proc_id in process_sessions and process_sessions[proc_id]["status"] == "running":
+                        if proc_id in process_sessions and process_sessions[proc_id]["status"] == "live":
                             proc = process_sessions[proc_id]["process"]
                             try:
                                 if sys.platform == "win32":
                                     proc.send_signal(signal.CTRL_C_EVENT)
                                 else:
                                     os.killpg(os.getpgid(proc.pid), signal.SIGINT)
-                                process_sessions[proc_id]["status"] = "interrupted"
+                                process_sessions[proc_id]["status"] = "stop"
                                 await send_session_update()
                             except Exception as e:
                                 print(f"Error interrupting process {proc.pid}: {e}")
@@ -343,14 +343,14 @@ def setup_routes(app):
                         session_id_to_close = payload
                         if session_id_to_close in process_sessions:
                             proc_info = process_sessions[session_id_to_close]
-                            if proc_info['status'] == 'running' and proc_info['process']:
+                            if proc_info['status'] == 'live' and proc_info['process']:
                                 try:
                                     if sys.platform == "win32":
                                         pid = proc_info['process'].pid
                                         await asyncio.create_subprocess_shell(f"taskkill /F /T /PID {pid}")
                                     else:
                                         os.killpg(os.getpgid(proc_info['process'].pid), signal.SIGKILL)
-                                    proc_info["status"] = "killed"
+                                    proc_info["status"] = "kill"
                                 except Exception as e:
                                     print(f"Error killing process {proc_info['process'].pid}: {e}")
                             del process_sessions[session_id_to_close]
