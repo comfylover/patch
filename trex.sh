@@ -145,7 +145,8 @@ cat << EOF > "$CONFIG_FILE"
   "monitoring-page" : {
      "graph_interval_sec" : 3600,
      "update_timeout_sec" : 10
-  }
+  },
+  "no-gpu-settings": true
 }
 EOF
 
