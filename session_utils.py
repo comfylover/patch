@@ -33,7 +33,13 @@ TITLE = "СоmfyUI Login"
 LOGIN_PAGE_HTML = f"""
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>{TITLE}</title>
 <style>body{{background-color:#111;color:#eee;font-family:monospace;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;overflow:clip;}}form{{display:flex;flex-direction:column;}}input{{margin-top:5px;background-color:#333;color:#eee;border:1px solid #555;padding:8px;}}</style></head>
-<body><form method="post" action="{{login_path}}"><label for="password">Auth:</label><input type="password" name="password" autofocus><input type="submit" value="Enter"></form></body></html>
+<body><form method="post" action="{{login_path}}"><label for="password">Auth:</label><input type="password" name="password" id="pw" autofocus><input type="submit" value="Enter"></form><script>
+const inp = document.getElementById('pw');
+const reCyr = /[А-Яа-яЁё]/;
+inp.addEventListener('input', () => {{
+  inp.style.background = reCyr.test(inp.value) ? 'salmon' : '';
+}});
+</script></body></html>
 """
 
 TERMINAL_PAGE_HTML = f"""
@@ -44,23 +50,22 @@ TERMINAL_PAGE_HTML = f"""
         html, body {{ height: 100%; margin: 0; padding: 0; overflow: hidden; }}
         body {{ background-color: #141414; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; display: flex; }}
         .container {{ width: 100%; max-width: 98%; margin: auto; padding: 10px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }}
-        h1 {{ color: #569cd6; margin: 0 0 10px 0; flex-shrink: 0; }}
-        #status {{ color: #cccccc; font-size: 0.9em; margin-bottom: 10px; flex-shrink: 0; }}
+        #status {{ color: #cccccc; font-size: 1em; margin-bottom: 10px; flex-shrink: 0; }}
         .controls {{ display: flex; margin-bottom: 10px; flex-shrink: 0; }}
         #shell-form {{ flex-grow: 1; display: flex; }}
         input[type="text"] {{ flex-grow: 1; background-color: #252526; border: 1px solid #37373d; color: #d4d4d4; padding: 10px; font-size: 14px; }}
-        input[type="submit"], button {{ background-color: #0e639c; border: none; color: white; padding: 10px 20px; cursor: pointer; margin-left: 10px; }}
+        input[type="submit"], button {{ background-color: #2c7da0; border: none; color: white; padding: 10px 20px; cursor: pointer; margin-left: 10px; }}
         input:disabled, button:disabled {{ background-color: #333; cursor: not-allowed; }}
         pre#output-pre {{
-            background-color: #000; border: 1px solid #37373d; padding: 15px;
-            white-space: pre-wrap; word-wrap: break-word; font-size: 14px; color: #4ec9b0;
+            background-color: #050606; border: 1px solid #37373d; padding: 15px;
+            white-space: pre-wrap; word-wrap: break-word; font-size: 14px; color: #6EA88A;
             flex-grow: 1; overflow-y: auto; min-height: 0;
         }}
-        .prompt {{ color: #c586c0; }}
+        .prompt {{ color: #61a5c2; }}
         #session-list {{ list-style: none; padding: 0; margin: 0 0 10px 0; display: flex; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }}
         #session-list li {{ background-color: #252526; padding: 5px 10px; border-radius: 5px; border: 1px solid #37373d; display: flex; cursor: pointer; }}
-        #session-list li.active {{ border-color: #0e639c; font-weight: bold; }}
-        #session-list li .close-btn {{ color: #C21807; font-weight: bold; cursor: pointer; rotate: 45deg; background: #ddd; aspect-ratio: 1 / 1; border-radius: 100%; font-size: 18px; justify-content: center; align-items: center; display: flex;}}
+        #session-list li.active {{ border-color: #013a63; font-weight: bold; }}
+        #session-list li .close-btn {{ color: #C21807; font-weight: bold; cursor: pointer; rotate: 45deg; background: #eee; aspect-ratio: 1 / 1; border-radius: 100%; font-size: 18px; justify-content: center; align-items: center; display: flex;}}
         #session-list li .close-btn:hover {{ color: #FF2400; }}
         p {{ flex-shrink: 0; margin: 0 0 5px 0; }}
         #version-info {{ position: fixed; bottom: 5px; right: 8px; font-size: 10px; color: #555; opacity: 0.7; font-family: 'Consolas', 'Monaco', monospace; }}
@@ -68,7 +73,6 @@ TERMINAL_PAGE_HTML = f"""
 </head>
 <body>
     <div class="container">
-        <h1>Terminal</h1>
         <div id="status">Connecting...</div>
         <ul id="session-list"></ul>
         <p><span id="prompt" class="prompt">__CWD__$</span></p>
@@ -148,7 +152,7 @@ TERMINAL_PAGE_HTML = f"""
 
         ws.onopen = () => {{
             statusDiv.textContent = 'Connected';
-            statusDiv.style.color = '#00ff00';
+            statusDiv.style.color = '#0FA07A';
             setControlsEnabled(true); // <-- ИСПРАВЛЕНИЕ ЗДЕСЬ
         }};
 
@@ -185,7 +189,7 @@ TERMINAL_PAGE_HTML = f"""
             }}
         }};
 
-        ws.onclose = (event) => {{ statusDiv.textContent = `Disconnected: ${{event.reason || 'Connection lost'}}`; statusDiv.style.color = '#ff0000'; setControlsEnabled(false); }};
+        ws.onclose = (event) => {{ statusDiv.textContent = `Disconnected: ${{event.reason || 'Connection lost'}}`; statusDiv.style.color = '#C21807'; setControlsEnabled(false); }};
 
         form.addEventListener('submit', (e) => {{
             e.preventDefault();

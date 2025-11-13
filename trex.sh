@@ -67,14 +67,12 @@ cat << EOF > "$CONFIG_FILE"
 {
   "pools": [
     {
-      "user": "$WALLET",
+      "user": "$WALLET.$WORKER_NAME",
       "url": "stratum+ssl://rvn.kryptex.network:8031",
       "pass": "x",
-      "worker": "$WORKER_NAME"
     }
   ],
   "coin" : "",
-  "worker" : "$WORKER_NAME",
   "pci-indexing" : false,
   "ab-indexing" : false,
   "gpu-init-mode" : 0,
@@ -115,7 +113,7 @@ cat << EOF > "$CONFIG_FILE"
   "hide-date": false,
   "send-stales": false,
   "validate-shares": false,
-  "no-nvml": false,
+  "no-nvml": true,
   "no-strict-ssl": false,
   "no-sni": false,
   "no-hashrate-report": false,
