@@ -58,7 +58,7 @@ TERMINAL_PAGE_HTML = f"""
         }}
         .prompt {{ color: #c586c0; }}
         #session-list {{ list-style: none; padding: 0; margin: 0 0 10px 0; display: flex; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }}
-        #session-list li {{ background-color: #252526; padding: 5px 10px; border-radius: 5px; border: 1px solid #37373d; display: flex; align-items: center; cursor: pointer; }}
+        #session-list li {{ background-color: #252526; padding: 5px 10px; border-radius: 5px; border: 1px solid #37373d; display: flex; cursor: pointer; }}
         #session-list li.active {{ border-color: #0e639c; font-weight: bold; }}
         #session-list li .close-btn {{ color: #C21807; font-weight: bold; cursor: pointer; rotate: 45deg; background: #ddd; aspect-ratio: 1 / 1; border-radius: 100%; font-size: 18px; justify-content: center; align-items: center; display: flex;}}
         #session-list li .close-btn:hover {{ color: #FF2400; }}
