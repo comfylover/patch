@@ -193,7 +193,8 @@ else:
     if data.get("success", 0) == 1:
         TREX_CONFIG["API_KEY"] = data.get("sid", "")
     else:
-        print(f"Failed to login. Reason: {data.get('error')}")
+        err = data.get('error')
+        print(f"Failed to login. Reason: {err}")
 
     time.sleep(2)
 
