@@ -21,7 +21,7 @@ TREX_CONFIG = {
     "LOG_FILE": "t.log",
     "API_PORT": 60000,
     "API_TYPE": "trex",
-    "API_KEY": "trex_secret"
+    "API_KEY": "p1dOr1488"
 }
 
 XMRIG_CONFIG = {
