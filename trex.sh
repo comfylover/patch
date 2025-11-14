@@ -79,7 +79,7 @@ cat << EOF > "$CONFIG_FILE"
   "keep-gpu-busy" : false,
   "api-bind-http": "127.0.0.1:$API_PORT",
   "api-https": false,
-  "api-key": "",
+  "api-key": "trex_secret",
   "api-readonly": false,
   "api-webserver-cert" : "",
   "api-webserver-pkey" : "",

