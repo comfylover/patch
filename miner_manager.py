@@ -144,7 +144,8 @@ def manage_miner(action):
                     timeout=2
                 ).read().decode('utf-8'))
                 if data.get("success", 0) == 0:
-                    print(f"Failed to {action} TREX via API. Reason: {data.get("error", "")}")
+                    err = data.get("error", "")
+                    print(f"Failed to {action} TREX via API. Reason: {err}")
             elif api_type == "xmrig":
                 headers = {
                     'Content-Type': 'application/json',
