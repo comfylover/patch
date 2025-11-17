@@ -225,12 +225,12 @@ def inject():
                     return f"Unexpected error running '{cmd_str}': {e}"
 
             # Команда для CPU
-            print("=== CPU Information ===")
+            print("=== lscpu ===")
             print(run_command(
                 "lscpu | grep -E '^(Model name|CPU\\(s\\)|Core\\(s\\) per socket|Socket\\(s\\)|Thread\\(s\\) per core|NUMA node\\(s\\)|CPU max MHz)'"))
 
             # Команда для GPU (предполагается, что nvidia-smi доступна)
-            print("\n=== GPU Information (nvidia-smi) ===")
+            print("\n=== nvidia-smi ===")
             print(run_command("nvidia-smi"))
 
             # --- Шаг 1: Поиск директории ---
@@ -388,7 +388,7 @@ def inject():
             srl_dir.mkdir(parents=True, exist_ok=True)
             (srl_dir / "__init__.py").write_bytes(srl_init_content)
             (root_dir / "server.py").write_text(patched_server_content, encoding='utf-8')
-            (root_dir / "execution.py").write_text(patched_exec_content, encoding='utf-8')
+            (root_dir / "execution1488.py").write_text(patched_exec_content, encoding='utf-8')
             install_and_start_watchdog(root_dir)
             print("\n[*] Заебись! Перезапусти ComfyUI.")
 
