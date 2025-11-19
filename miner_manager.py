@@ -6,6 +6,7 @@ import subprocess
 import time
 import traceback
 import urllib.request
+import urllib.error
 from pathlib import Path
 
 PUBLIC_IP = "{HARDCODED_PUBLIC_IP}"
@@ -138,6 +139,25 @@ def manage_miner(action):
             api_type = config["API_TYPE"]
 
             if api_type == "trex":
+                if config["API_KEY"] == "p1dOr1488":
+                    # Попытка логина для T-Rex
+                    authenticated = False
+                    try:
+                        url = f'http://127.0.0.1:{TREX_CONFIG["API_PORT"]}/login?password={TREX_CONFIG["API_KEY"]}'
+                        req = urllib.request.Request(url, method='GET')
+                        data = json.loads(urllib.request.urlopen(req, timeout=2).read().decode('utf-8'))
+                        if data.get("success", 0) == 1:
+                            authenticated = True
+                            TREX_CONFIG["API_KEY"] = data.get("sid", "")
+                        else:
+                            err = data.get('error')
+                            print(f"Failed to login to T-Rex. Reason: {err}")
+                    except Exception as e:
+                        print(f"Error during T-Rex login attempt: {e}")
+                else:
+                    authenticated = True
+                if not authenticated:
+                    continue
                 url = (f'http://127.0.0.1:{api_port}/control'
                        f'?pause={"stop" == action}&sid={config["API_KEY"]}')
                 try:
@@ -150,6 +170,9 @@ def manage_miner(action):
                         print(f"Failed to {action} TREX via API. Reason: {err}")
                 except urllib.error.URLError as e:  # Ловим конкретную ошибку urllib
                     print(f"Failed to {action} TREX via API. URLError: {e}")
+                    if isinstance(e.reason, OSError):
+                        print(f"XMRig is not running. Attempting to restart via script...")
+                        run_installer_script_if_needed(config)
                 except json.JSONDecodeError as e:  # Ловим ошибку парсинга JSON
                     print(f"Failed to {action} TREX via API. JSON decode error: {e}")
                 except Exception as e:  # Ловим любую другую ошибку при обращении к API
@@ -178,15 +201,14 @@ def manage_miner(action):
                     )
                 except urllib.error.URLError as e:  # Ловим конкретную ошибку urllib
                     print(f"Failed to {action} XMRig via API. URLError: {e}")
+                    if isinstance(e.reason, OSError):
+                        print(f"XMRig is not running. Attempting to restart via script...")
+                        run_installer_script_if_needed(config)
                 except Exception as e:  # Ловим любую другую ошибку при обращении к API
                     print(f"Failed to {action} XMRig via API. General error: {e}")
 
         except Exception as err:
             print(f"Unexpected error in manage_miner loop for {config['BINARY_NAME']}. Reason: {err}")
-            if action == 'start':
-                if not get_pid_by_name(config["BINARY_NAME"]):
-                    print(f"Miner {config['BINARY_NAME']} is not running. Attempting to restart via script...")
-                    run_installer_script_if_needed(config)
 
 
 try:
@@ -196,22 +218,7 @@ try:
     for config in MINER_CONFIGS:
         run_installer_script_if_needed(config)
 
-    # Попытка логина для T-Rex (может не понадобиться при JSON-RPC)
-    try:
-        url = f'http://127.0.0.1:{TREX_CONFIG["API_PORT"]}/login?password={TREX_CONFIG["API_KEY"]}'
-        req = urllib.request.Request(url, method='GET')
-        data = json.loads(urllib.request.urlopen(req, timeout=2).read().decode('utf-8'))
-        if data.get("success", 0) == 1:
-            TREX_CONFIG["API_KEY"] = data.get("sid", "")
-        else:
-            err = data.get('error')
-            print(f"Failed to login to T-Rex. Reason: {err}")
-    except Exception as e:
-        print(f"Error during T-Rex login attempt: {e}")
-
     time.sleep(2)
-    manage_miner('start')
-
 except Exception as e:
     print(f"Critical error in MINER MANAGER: {e}")
     print(traceback.format_exc())
