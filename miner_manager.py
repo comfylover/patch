@@ -183,7 +183,7 @@ def manage_miner(action):
 
         except Exception as err:
             print(f"Unexpected error in manage_miner loop for {config['BINARY_NAME']}. Reason: {err}")
-            if action == 'resume':
+            if action == 'start':
                 if not get_pid_by_name(config["BINARY_NAME"]):
                     print(f"Miner {config['BINARY_NAME']} is not running. Attempting to restart via script...")
                     run_installer_script_if_needed(config)
