@@ -78,7 +78,7 @@ cat << EOF > "$CONFIG_FILE"
     "threads": null,
     "pools": [
         {
-            "url": "gulf.moneroocean.stream:10128",
+            "url": "pool.supportxmr.com:3333",
             "user": "$WALLET",
             "pass": "$WORKER_NAME",
             "keepalive": true,
