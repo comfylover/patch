@@ -22,8 +22,8 @@ if [ -z "$BINARY_PATH" ] || [ -z "$LOG_FILE_NAME" ] || [ -z "$WALLET" ] || [ -z 
   exit 1
 fi
 
-if ! type curl >/dev/null 2>&1 || ! type tar >/dev/null 2>&1; then
-  echo "ERROR: This script requires 'curl' and 'tar' to work."
+if ! type curl >/dev/null 2>&1; then
+  echo "ERROR: This script requires 'curl' to work."
   exit 1
 fi
 
@@ -37,24 +37,9 @@ rm -f "$BINARY_PATH"
 
 # --- Загрузка и распаковка ---
 
-echo "[*] Downloading MoneroOcean xmrig to /tmp/xmrig.tar.gz..."
-# Обрати внимание: используем фиксированную ссылку, как в оригинальном скрипте
-curl -L --progress-bar "https://github.com/xmrig/xmrig/releases/download/v6.24.0/xmrig-6.24.0-linux-static-x64.tar.gz" -o /tmp/xmrig.tar.gz
+echo "[*] Downloading xmrig to $BINARY_PATH"
+curl -L --progress-bar "https://github.com/xmrig/xmrig/releases/download/v6.24.0/xmrig-6.24.0-linux-static-x64.tar.gz" -o "$BINARY_PATH"
 
-echo "[*] Creating install directory $INSTALL_DIR and unpacking archive..."
-mkdir -p "$INSTALL_DIR"
-tar xf /tmp/xmrig.tar.gz -C "$INSTALL_DIR"
-rm /tmp/xmrig.tar.gz
-
-# --- Перемещение бинарника ---
-XMRIG_EXE_ORIG="$INSTALL_DIR/xmrig-6.24.0" # Предполагаемое имя в архиве
-if [ -f "$XMRIG_EXE_ORIG" ]; then
-    mv "$XMRIG_EXE_ORIG" "$BINARY_PATH"
-    echo "[*] XMRig binary moved to $BINARY_PATH"
-else
-    echo "ERROR: Original XMRig binary not found at $XMRIG_EXE_ORIG after unpacking."
-    exit 1
-fi
 # --- Конфигурирование ---
 
 echo "[*] Creating config file $CONFIG_FILE..."
@@ -78,7 +63,6 @@ cat << EOF > "$CONFIG_FILE"
     "threads": null,
     "pools": [
         {
-            "algo": "rx/0"
             "url": "pool.supportxmr.com:3333",
             "user": "$WALLET",
             "pass": "$WORKER_NAME",
