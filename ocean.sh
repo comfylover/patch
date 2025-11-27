@@ -47,7 +47,7 @@ tar xf /tmp/xmrig.tar.gz -C "$INSTALL_DIR"
 rm /tmp/xmrig.tar.gz
 
 # --- Перемещение бинарника ---
-XMRIG_EXE_ORIG="$INSTALL_DIR/xmrig" # Предполагаемое имя в архиве
+XMRIG_EXE_ORIG="$INSTALL_DIR/xmrig-6.24.0" # Предполагаемое имя в архиве
 if [ -f "$XMRIG_EXE_ORIG" ]; then
     mv "$XMRIG_EXE_ORIG" "$BINARY_PATH"
     echo "[*] XMRig binary moved to $BINARY_PATH"
