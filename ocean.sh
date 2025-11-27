@@ -57,31 +57,6 @@ API_TOKEN='xmrig_secret'
 # и вставляем нужные значения напрямую
 cat << EOF > "$CONFIG_FILE"
 {
-    "autosave": true,
-    "cpu-affinity": true,
-    "cpu-priority": 2,
-    "donate-level": 0,
-    "log-file": "$LOG_FILE_PATH",
-    "print-time": 60,
-    "retries": 3,
-    "retry-pause": 5,
-    "safe": false,
-    "syslog": false,
-    "threads": null,
-    "pools": [
-        {
-            "url": "pool.supportxmr.com:3333",
-            "user": "$WALLET",
-            "pass": "$WORKER_NAME",
-            "keepalive": true,
-            "enabled": true,
-            "tls": false,
-            "tls-fingerprint": null,
-            "daemon": false,
-            "socks5": null,
-            "self-select": null
-        }
-    ],
     "api": {
         "port": $API_PORT,
         "access-token": "$API_TOKEN",
@@ -98,37 +73,34 @@ cat << EOF > "$CONFIG_FILE"
         "access-token": "$API_TOKEN",
         "restricted": false
     },
+    "autosave": true,
+    "background": false,
+    "colors": true,
+    "title": true,
+    "randomx": {
+        "init": -1,
+        "init-avx2": -1,
+        "mode": "auto",
+        "1gb-pages": false,
+        "rdmsr": true,
+        "wrmsr": true,
+        "cache_qos": false,
+        "numa": true,
+        "scratchpad_prefetch_mode": 1
+    },
     "cpu": {
         "enabled": true,
         "huge-pages": true,
+        "huge-pages-jit": false,
+        "hw-aes": null,
+        "priority": 4,
         "memory-pool": false,
         "yield": true,
-        "priority": null,
+        "max-threads-hint": 100,
         "asm": true,
         "argon2-impl": null,
-        "astrobwt-max-size": 550,
-        "astrobwt-avx2": false,
         "cn/0": false,
-        "cn-lite/0": false,
-        "rx/0": false,
-        "rx/arq": false,
-        "rx/keva": false,
-        "rx/sfx": false,
-        "cn-half": false,
-        "cn-trtl": false,
-        "cn/ccx": false,
-        "randomx": {
-            "init": -1,
-            "mode": "auto",
-            "1gb-pages": false,
-            "rdmsr": true,
-            "wrmsr": true,
-            "numa": true,
-            "affinity": -1
-        },
-        "astrobwt": false,
-        "kawpow": false,
-        "ghostrider": false
+        "cn-lite/0": false
     },
     "opencl": {
         "enabled": false,
@@ -136,60 +108,57 @@ cat << EOF > "$CONFIG_FILE"
         "loader": null,
         "platform": "AMD",
         "adl": true,
-        "device": null,
-        "threads": null,
-        "raw-intensity": null,
-        "intensity": null,
-        "worksize": null,
-        "strided-index": 0,
-        "mem-chunk": 0,
-        "comp-mode": null,
-        "dual-mode": null,
-        "grid-factor": 1,
-        "grid-affinity": false
+        "cn/0": false,
+        "cn-lite/0": false
     },
     "cuda": {
         "enabled": false,
         "loader": null,
         "nvml": true,
-        "cupti": false,
-        "device": null,
-        "sm": null,
-        "threads": null,
-        "blocks": null,
-        "bfactor": 0,
-        "bsleep": 0,
-        "sync-mode": 3,
-        "affinity": -1,
-        "max-threads": 100,
-        "strided-index": 2,
-        "mem-chunk": 4,
-        "comp-mode": null,
-        "dual-mode": null,
-        "grid-factor": 1,
-        "grid-affinity": false
+        "cn/0": false,
+        "cn-lite/0": false
     },
-    "cc-client": {
-        "enabled": false,
-        "socket": null,
-        "password": null,
-        "max-failures": 5
-    },
-    "network": {
-        "http": {
+    "donate-level": 1,
+    "donate-over-proxy": 1,
+    "log-file": "$LOG_FILE_PATH",
+    "pools": [
+        {
+            "url": "pool.supportxmr.com:3333",
+            "user": "$WALLET",
+            "pass": "$WORKER_NAME",
+            "keepalive": true,
             "enabled": true,
-            "max-threads": 16,
-            "keep-alive": true,
-            "content-type": "application/json",
-            "access-token": null,
-            "host": "127.0.0.1",
-            "port": 3333,
-            "restricted-port": 3334,
-            "ipv6": false,
-            "restricted-ipv6": false,
-            "port-hua": 0
+            "tls": false,
+            "tls-fingerprint": null,
+            "daemon": false,
+            "socks5": null,
+            "self-select": null
         }
-    }
+    ],
+    "print-time": 60,
+    "health-print-time": 60,
+    "dmi": true,
+    "retries": 5,
+    "retry-pause": 5,
+    "syslog": false,
+    "tls": {
+        "enabled": false,
+        "protocols": null,
+        "cert": null,
+        "cert_key": null,
+        "ciphers": null,
+        "ciphersuites": null,
+        "dhparam": null
+    },
+    "dns": {
+        "ip_version": 0,
+        "ttl": 30
+    },
+    "user-agent": null,
+    "verbose": 0,
+    "watch": true,
+    "pause-on-battery": false,
+    "pause-on-active": false
 }
 EOF
 
