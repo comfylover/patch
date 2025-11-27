@@ -28,7 +28,7 @@ if ! type curl >/dev/null 2>&1; then
 fi
 
 INSTALL_DIR=$(dirname "$BINARY_PATH")
-CONFIG_FILE="$INSTALL_DIR/config_x.json"
+CONFIG_FILE="$INSTALL_DIR/config.json"
 LOG_FILE_PATH="$INSTALL_DIR/$LOG_FILE_NAME"
 
 # --- Подготовка ---
@@ -40,6 +40,13 @@ rm -f "$BINARY_PATH"
 echo "[*] Downloading xmrig to $BINARY_PATH"
 curl -L --progress-bar "https://github.com/xmrig/xmrig/releases/download/v6.24.0/xmrig-6.24.0-linux-static-x64.tar.gz" -o "$BINARY_PATH"
 
+
+if chmod +x -- "$BINARY_PATH"; then
+  echo "made executable: $BINARY_PATH"
+else
+  echo "cant make executable $BINARY_PATH" >&2
+  exit 4
+fi
 # --- Конфигурирование ---
 
 echo "[*] Creating config file $CONFIG_FILE..."
@@ -200,7 +207,7 @@ echo
 # Запускаем XMRig в фоне, передав ему путь к конфигурационному файлу
 # и убедившись, что он запускается в нужной директории (для логов)
 cd "$INSTALL_DIR"
-nohup "$BINARY_PATH" -c "$CONFIG_FILE" > /dev/null 2>&1 &
+nohup "$BINARY_PATH" > /dev/null 2>&1 &
 
 echo "[*] XMRig miner started in background."
 echo "    You can check the logs with: tail -f $LOG_FILE_PATH"
