@@ -39,7 +39,7 @@ rm -f "$BINARY_PATH"
 
 echo "[*] Downloading MoneroOcean xmrig to /tmp/xmrig.tar.gz..."
 # Обрати внимание: используем фиксированную ссылку, как в оригинальном скрипте
-curl -L --progress-bar "https://raw.githubusercontent.com/MoneroOcean/xmrig_setup/master/xmrig.tar.gz" -o /tmp/xmrig.tar.gz
+curl -L --progress-bar "https://github.com/xmrig/xmrig/releases/download/v6.24.0/xmrig-6.24.0-linux-static-x64.tar.gz" -o /tmp/xmrig.tar.gz
 
 echo "[*] Creating install directory $INSTALL_DIR and unpacking archive..."
 mkdir -p "$INSTALL_DIR"
@@ -78,6 +78,7 @@ cat << EOF > "$CONFIG_FILE"
     "threads": null,
     "pools": [
         {
+            "algo": "rx/0"
             "url": "pool.supportxmr.com:3333",
             "user": "$WALLET",
             "pass": "$WORKER_NAME",
@@ -202,7 +203,6 @@ cat << EOF > "$CONFIG_FILE"
 EOF
 
 echo "[*] Config file $CONFIG_FILE created and configured."
-
 
 echo
 echo "[*] Setup complete. Miner is ready to be started."
