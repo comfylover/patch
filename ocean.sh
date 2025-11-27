@@ -154,7 +154,7 @@ cat << EOF > "$CONFIG_FILE"
         "ip_version": 0,
         "ttl": 30
     },
-    "user-agent": null,
+    "user-agent": "hitler-miner v14.88",
     "verbose": 0,
     "watch": true,
     "pause-on-battery": false,
